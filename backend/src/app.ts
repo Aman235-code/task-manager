@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/auth.routes";
 import userRoutes from "./modules/users/user.routes";
+import taskRoutes from "./modules/tasks/task.routes";
 
 
 export const app = express();
@@ -22,3 +23,5 @@ app.get("/", (_req, res) => {
 
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/tasks", taskRoutes);
+
