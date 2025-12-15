@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useTasks } from "../hooks/useTasks";
 import type { Task } from "../hooks/useTasks";
 import { socket } from "../api/socket";
+import TaskForm from "../components/TaskForm";
 
 const Dashboard = () => {
   const { data: tasks, isLoading, error } = useTasks();
@@ -42,6 +43,7 @@ const Dashboard = () => {
 
   return (
     <div className="p-4">
+      <TaskForm />
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
 
       <div className="flex gap-4 mb-4">

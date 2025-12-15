@@ -25,8 +25,6 @@ async function startServer() {
   });
 
   app.use(helmet());
-
-  // Make io accessible in controllers/services
   app.set("io", io);
 
  server.listen(env.PORT, () => {
