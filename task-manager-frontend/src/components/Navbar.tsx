@@ -24,7 +24,7 @@ const Navbar = () => {
     }`;
 
   return (
-    <nav className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-lg">
+    <nav className="bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-lg">
       <div className="max-w-7xl mx-auto px-6">
         <div className="h-16 grid grid-cols-3 items-center">
           {/* Left: Brand */}

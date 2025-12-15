@@ -15,8 +15,7 @@ export interface Task {
 // Fetch all tasks
 export const useTasks = () => {
   return useQuery<Task[]>("tasks", async () => {
-    const { data } = await api.get("/api/tasks");
-    console.warn(data.tasks)
+    const { data } = await api.get("/api/v1/tasks");
     return data.tasks;
   });
 };
