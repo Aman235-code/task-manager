@@ -21,7 +21,7 @@ app.get("/", (_req, res) => {
   res.send("Server is running");
 });
 
-app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
-app.use("/tasks", taskRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/tasks", taskRoutes);
 
