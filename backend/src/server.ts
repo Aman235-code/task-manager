@@ -3,6 +3,7 @@ import { env } from "./config/env";
 import { connectDB } from "./config/db";
 import { Server } from "socket.io";
 import http from "http";
+import helmet from "helmet";
 
 async function startServer() {
   await connectDB();
@@ -22,6 +23,8 @@ async function startServer() {
       console.log(`User disconnected: ${socket.id}`);
     });
   });
+
+  app.use(helmet());
 
   // Make io accessible in controllers/services
   app.set("io", io);
