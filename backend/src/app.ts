@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/auth.routes";
+import userRoutes from "./modules/users/user.routes";
+
 
 export const app = express();
 
@@ -19,3 +21,4 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
