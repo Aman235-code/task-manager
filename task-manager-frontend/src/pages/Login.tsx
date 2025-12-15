@@ -38,7 +38,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-purple-100 to-indigo-100">
       <div className="bg-white shadow-lg rounded-lg p-10 w-full max-w-md">
         <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">
           Login
