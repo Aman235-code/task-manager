@@ -6,11 +6,14 @@ export async function createTask(req: Request, res: Response) {
   try {
     const data = CreateTaskDto.parse(req.body);
     const io = req.app.get("io");
-    const task = await taskService.createTask(req.user!.id.toString(), data, io);
-    io.emit("taskCreated", task);
+
+    const task = await taskService.createTask(req.user!.id, data, io);
+
     res.status(201).json(task);
   } catch (err: any) {
-    res.status(400).json({ message: err.message });
+    res
+      .status(err.status || 400)
+      .json({ message: err.message });
   }
 }
 
@@ -20,7 +23,7 @@ export async function getTask(req: Request, res: Response) {
     if (!task) return res.status(404).json({ message: "Task not found" });
     res.json(task);
   } catch (err: any) {
-    res.status(400).json({ message: err.message });
+    res.status(err.status || 400).json({ message: err.message });
   }
 }
 
@@ -31,38 +34,40 @@ export async function getUserTasks(req: Request, res: Response) {
     );
     res.json({ tasks, overdueTasks });
   } catch (err: any) {
-    res.status(400).json({ message: err.message });
+    res.status(err.status || 400).json({ message: err.message });
   }
 }
 
 export async function updateTask(req: Request, res: Response) {
   try {
     const data = UpdateTaskDto.parse(req.body);
-     const io = req.app.get("io");
+    const io = req.app.get("io");
+
     const updatedTask = await taskService.updateTask(
       req.params.id,
       req.user!.id.toString(),
       data,
       io
     );
-    io.emit("taskUpdated", updatedTask);
+
     res.json(updatedTask);
   } catch (err: any) {
-    res.status(400).json({ message: err.message });
+    res.status(err.status || 400).json({ message: err.message });
   }
 }
 
 export async function deleteTask(req: Request, res: Response) {
   try {
+    const io = req.app.get("io");
+
     const deletedTask = await taskService.deleteTask(
       req.params.id,
-      req.user!.id.toString()
+      req.user!.id.toString(),
+      io
     );
-    const io = req.app.get("io");
-    io.emit("taskDeleted", deletedTask);
 
     res.json({ message: "Task deleted", task: deletedTask });
   } catch (err: any) {
-    res.status(400).json({ message: err.message });
+    res.status(err.status || 400).json({ message: err.message });
   }
 }

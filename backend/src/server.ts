@@ -1,33 +1,20 @@
 import { app } from "./app";
 import { env } from "./config/env";
 import { connectDB } from "./config/db";
-import { Server } from "socket.io";
 import http from "http";
 import helmet from "helmet";
+import { setupSocket } from "./socket";
 
 async function startServer() {
   await connectDB();
 
   const server = http.createServer(app);
-  const io = new Server(server, {
-    cors: {
-      origin: true,
-      credentials: true
-    }
-  });
-
-   io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.id}`);
-
-    socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.id}`);
-    });
-  });
+  const io = setupSocket(server);
 
   app.use(helmet());
-  app.set("io", io);
+  app.set("io", io); // important
 
- server.listen(env.PORT, () => {
+  server.listen(env.PORT, () => {
     console.log(`Server running on http://localhost:${env.PORT}`);
   });
 }

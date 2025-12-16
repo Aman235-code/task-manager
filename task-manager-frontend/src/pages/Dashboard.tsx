@@ -1,4 +1,4 @@
- 
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useMemo } from "react";
 import {
   useTasks,
@@ -34,8 +34,10 @@ const Dashboard = () => {
   /* ---------- Socket sync ---------- */
 
   useEffect(() => {
-    setRealtimeTasks(tasks);
-  }, [tasks]);
+    if (realtimeTasks.length === 0 && tasks.length > 0) {
+      setRealtimeTasks(tasks);
+    }
+  }, [tasks, realtimeTasks.length]);
 
   useEffect(() => {
     socket.on("taskCreated", (task: Task) => {

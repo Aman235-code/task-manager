@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/auth.routes";
 import userRoutes from "./modules/users/user.routes";
 import taskRoutes from "./modules/tasks/task.routes";
+import notificationRoutes from "./modules/notifications/notification.routes";
 
 
 export const app = express();
@@ -24,4 +25,4 @@ app.get("/", (_req, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/tasks", taskRoutes);
-
+app.use("/api/v1/notifications", notificationRoutes);
