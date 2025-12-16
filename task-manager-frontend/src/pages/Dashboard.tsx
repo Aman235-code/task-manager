@@ -9,8 +9,6 @@ import {
 import type { Task } from "../hooks/useTasks";
 import { socket } from "../api/socket";
 import { useAuth } from "../context/AuthContext";
-import Modal from "../components/CreateTaskModal";
-import TaskForm from "../components/TaskForm";
 import TaskCard from "../components/TaskCard";
 import { Plus, UserCheck, ClipboardList, AlertTriangle } from "lucide-react";
 import { Filter, Flag, ArrowUpDown } from "lucide-react";
@@ -34,9 +32,12 @@ const Dashboard = () => {
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
   /* ---------- Socket sync ---------- */
+
   useEffect(() => {
     setRealtimeTasks(tasks);
+  }, [tasks]);
 
+  useEffect(() => {
     socket.on("taskCreated", (task: Task) => {
       setRealtimeTasks((prev) => [...prev, task]);
     });
@@ -47,11 +48,16 @@ const Dashboard = () => {
       );
     });
 
+    socket.on("taskDeleted", (id: string) => {
+      setRealtimeTasks((prev) => prev.filter((t) => t._id !== id));
+    });
+
     return () => {
       socket.off("taskCreated");
       socket.off("taskUpdated");
+      socket.off("taskDeleted");
     };
-  }, [tasks]);
+  }, []);
 
   /* ---------- Derived views ---------- */
   const assignedToMe = useMemo(

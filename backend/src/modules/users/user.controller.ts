@@ -54,3 +54,19 @@ export async function getAllUsers(req: Request, res: Response) {
     return res.status(500).json({ message: "Server error" });
   }
 }
+
+export async function getSingleUser(req: Request, res: Response){
+  try{
+    const id = req.params.id;
+    console.log(id)
+    const user = await User.findOne({_id: id})
+    return res.status(200).json({user})
+  }
+  catch (err){
+     if (err instanceof Error) {
+    return res.status(500).json({ message: err.message });
+  }
+    return res.status(500).json({ message: "Server error" });
+  }
+  
+}

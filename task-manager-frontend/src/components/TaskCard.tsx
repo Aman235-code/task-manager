@@ -1,5 +1,6 @@
 import { Calendar, Pencil, Trash2 } from "lucide-react";
 import type { Task } from "../hooks/useTasks";
+import { useEffect, useState } from "react";
 
 export default function TaskCard({
   task,
@@ -13,14 +14,42 @@ export default function TaskCard({
   const isOverdue =
     new Date(task.dueDate) < new Date() && task.status !== "Completed";
 
+  const [creatorName, setCreatorName] = useState<string>("");
+
+  useEffect(() => {
+    if (!task.creatorId) return;
+
+    const fetchCreator = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:4000/api/v1/users/${task.creatorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        if (!res.ok) throw new Error("Failed to fetch creator");
+
+        const data = await res.json();
+        setCreatorName(data.user?.name || "");
+      } catch (err) {
+        console.error("Creator fetch failed", err);
+      }
+    };
+
+    fetchCreator();
+  }, [task.creatorId]);
+
   return (
     <div
       className={`group relative overflow-hidden rounded-2xl border p-5 transition-all
         hover:-translate-y-1 hover:shadow-2xl
         ${
           isOverdue
-            ? "border-red-400/60 bg-gradient-to-br from-red-50 via-white to-rose-50"
-            : "border-slate-200 bg-gradient-to-br from-indigo-50/40 via-white to-cyan-50/40"
+            ? "border-red-400/60 bg-linear-to-br from-red-50 via-white to-rose-50"
+            : "border-slate-200 bg-linear-to-br from-indigo-50/40 via-white to-cyan-50/40"
         }
       `}
     >
@@ -28,8 +57,8 @@ export default function TaskCard({
       <div
         className={`absolute inset-x-0 top-0 h-1.5 ${
           isOverdue
-            ? "bg-gradient-to-r from-red-400 to-rose-500"
-            : "bg-gradient-to-r from-indigo-400 via-sky-400 to-cyan-400"
+            ? "bg-linear-to-r from-red-400 to-rose-500"
+            : "bg-linear-to-r from-indigo-400 via-sky-400 to-cyan-400"
         }`}
       />
 
@@ -64,9 +93,18 @@ export default function TaskCard({
       </div>
 
       {/* Footer */}
-      <div className="mt-5 flex items-center gap-2 text-sm font-medium text-slate-500">
-        <Calendar size={15} />
-        <span>{new Date(task.dueDate).toLocaleDateString()}</span>
+      <div className="mt-5 space-y-1 text-sm font-medium text-slate-500">
+        <div className="flex items-center gap-2">
+          <Calendar size={15} />
+          <span>{new Date(task.dueDate).toLocaleDateString()}</span>
+        </div>
+
+        <div className="text-xs">
+          Created by{" "}
+          <span className="font-semibold text-slate-700">
+            {creatorName || "Loading..."}
+          </span>
+        </div>
       </div>
     </div>
   );

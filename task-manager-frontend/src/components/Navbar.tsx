@@ -10,7 +10,7 @@ const Navbar = () => {
     try {
       await api.post("/api/v1/auth/logout");
       logout();
-      navigate("/register");
+      navigate("/login");
     } catch (err: any) {
       alert(err.response?.data?.message || "Logout failed");
     }
