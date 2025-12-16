@@ -24,7 +24,7 @@ export const useTasks = () => {
 export const useCreateTask = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    (task: Partial<Task>) => api.post("/tasks", task),
+    (task: Partial<Task>) => api.post("/api/v1/tasks", task),
     {
       onSuccess: () => {
         queryClient.invalidateQueries("tasks");
@@ -38,7 +38,7 @@ export const useUpdateTask = () => {
   const queryClient = useQueryClient();
   return useMutation(
     ({ id, task }: { id: string; task: Partial<Task> }) =>
-      api.put(`/tasks/${id}`, task),
+      api.put(`/api/v1/tasks/${id}`, task),
     {
       onSuccess: () => {
         queryClient.invalidateQueries("tasks");
@@ -51,7 +51,7 @@ export const useUpdateTask = () => {
 export const useDeleteTask = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    (id: string) => api.delete(`/tasks/${id}`),
+    (id: string) => api.delete(`/api/v1/tasks/${id}`),
     {
       onSuccess: () => {
         queryClient.invalidateQueries("tasks");

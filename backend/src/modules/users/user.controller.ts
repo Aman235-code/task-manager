@@ -42,3 +42,15 @@ export async function updateName(req: Request, res: Response) {
     return res.status(500).json({ message: "Server error" });
   }
 }
+
+export async function getAllUsers(req: Request, res: Response) {
+  try {
+    const users = await User.find()
+    return res.status(200).json({users})
+  } catch (err) {
+     if (err instanceof Error) {
+    return res.status(500).json({ message: err.message });
+  }
+    return res.status(500).json({ message: "Server error" });
+  }
+}

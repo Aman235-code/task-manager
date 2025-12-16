@@ -1,6 +1,11 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useMemo } from "react";
-import { useTasks } from "../hooks/useTasks";
+import {
+  useTasks,
+  useCreateTask,
+  useUpdateTask,
+  useDeleteTask,
+} from "../hooks/useTasks";
 import type { Task } from "../hooks/useTasks";
 import { socket } from "../api/socket";
 import { useAuth } from "../context/AuthContext";
@@ -10,10 +15,14 @@ import TaskCard from "../components/TaskCard";
 import { Plus, UserCheck, ClipboardList, AlertTriangle } from "lucide-react";
 import { Filter, Flag, ArrowUpDown } from "lucide-react";
 import CreateTaskModal from "../components/CreateTaskModal";
+import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { data: tasks = [], isLoading, error } = useTasks();
+  const createTaskMutation = useCreateTask();
+  const updateTaskMutation = useUpdateTask();
+  const deleteTaskMutation = useDeleteTask();
 
   const [realtimeTasks, setRealtimeTasks] = useState<Task[]>([]);
   const [openCreate, setOpenCreate] = useState(false);
@@ -21,6 +30,8 @@ const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
   /* ---------- Socket sync ---------- */
   useEffect(() => {
@@ -179,7 +190,16 @@ const Dashboard = () => {
           {filteredTasks.length > 0 ? (
             filteredTasks.map((task) => (
               <div key={task._id} className="animate-fade-in">
-                <TaskCard task={task} />
+                <TaskCard
+                  task={task}
+                  onEdit={(task) => {
+                    setEditingTask(task);
+                    setOpenCreate(true);
+                  }}
+                  onDelete={(task) => {
+                    setTaskToDelete(task);
+                  }}
+                />
               </div>
             ))
           ) : (
@@ -198,12 +218,37 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Create Modal */}
       <CreateTaskModal
         open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        onCreate={(task) => {
-          return console.log(task);
+        initialTask={editingTask}
+        onClose={() => {
+          setOpenCreate(false);
+          setEditingTask(null);
+        }}
+        onSubmit={(task) => {
+          if (editingTask) {
+            updateTaskMutation.mutate({
+              id: editingTask._id,
+              task,
+            });
+          } else {
+            createTaskMutation.mutate(task);
+          }
+        }}
+      />
+
+      <ConfirmDeleteModal
+        open={!!taskToDelete}
+        loading={deleteTaskMutation.isLoading}
+        onClose={() => setTaskToDelete(null)}
+        onConfirm={() => {
+          if (!taskToDelete) return;
+
+          deleteTaskMutation.mutate(taskToDelete._id, {
+            onSuccess: () => {
+              setTaskToDelete(null);
+            },
+          });
         }}
       />
     </div>
