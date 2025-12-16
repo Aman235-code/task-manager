@@ -30,22 +30,41 @@ export const useTasks = () => {
 
 // Create a task
 export const useCreateTask = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
   return useMutation(
-    (task: Partial<Task>) => api.post("/api/v1/tasks", task)
+    (task: Partial<Task>) => api.post("/api/v1/tasks", task),
+    {
+      onSuccess: () => {
+        if (!user?.id) return;
+
+        queryClient.invalidateQueries({
+          queryKey: ["tasks", user.id]
+        });
+      }
+    }
   );
 };
+
 
 
 // Update a task
 export const useUpdateTask = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+
   return useMutation(
     ({ id, task }: { id: string; task: Partial<Task> }) =>
       api.put(`/api/v1/tasks/${id}`, task),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries("tasks");
-      },
+        if (!user?.id) return;
+
+        queryClient.invalidateQueries({
+          queryKey: ["tasks", user.id]
+        });
+      }
     }
   );
 };
@@ -53,12 +72,18 @@ export const useUpdateTask = () => {
 // Delete a task
 export const useDeleteTask = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+
   return useMutation(
     (id: string) => api.delete(`/api/v1/tasks/${id}`),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries("tasks");
-      },
+        if (!user?.id) return;
+
+        queryClient.invalidateQueries({
+          queryKey: ["tasks", user.id]
+        });
+      }
     }
   );
 };

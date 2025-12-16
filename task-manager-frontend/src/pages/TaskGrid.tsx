@@ -5,7 +5,10 @@ const TaskGrid = ({ tasks, onEdit, onDelete }: any) => (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {tasks.length > 0 ? (
         tasks.map((task: any) => (
-          <div key={task._id} className="animate-fade-in">
+          <div
+            key={task._id}
+            className="animate-fade-in transition-transform hover:scale-[1.02]"
+          >
             <TaskCard
               task={task}
               onEdit={() => onEdit(task)}
@@ -14,12 +17,12 @@ const TaskGrid = ({ tasks, onEdit, onDelete }: any) => (
           </div>
         ))
       ) : (
-        <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-linear-to-br from-slate-50 to-white p-12 text-center shadow-sm">
-          <div className="mb-3 rounded-full bg-indigo-100 p-3 text-indigo-600">
+        <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-gray-600 bg-gray-800 p-12 text-center shadow-md">
+          <div className="mb-3 rounded-full bg-gray-700 p-4 text-gray-200 text-2xl">
             📋
           </div>
-          <p className="text-sm font-semibold text-slate-700">No tasks found</p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="text-sm font-semibold text-gray-100">No tasks found</p>
+          <p className="mt-1 text-xs text-gray-400">
             Try adjusting your filters or create a new task
           </p>
         </div>

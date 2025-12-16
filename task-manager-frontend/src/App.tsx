@@ -8,9 +8,9 @@ import Profile from "./components/Profile";
 
 function App() {
   return (
-    <>
+    <div className="min-h-screen bg-gray-900 text-gray-100">
       <Navbar />
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-7xl px-4 mt-4 py-6 space-y-8 bg-gray-900 rounded-lg shadow-md">
         <Routes>
           <Route
             path="/"
@@ -32,7 +32,7 @@ function App() {
           />
         </Routes>
       </main>
-    </>
+    </div>
   );
 }
 

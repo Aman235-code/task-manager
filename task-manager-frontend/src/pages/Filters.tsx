@@ -8,16 +8,17 @@ const Filters = ({
   sortOrder,
   setSortOrder,
 }: any) => (
-  <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-slate-200 bg-linear-to-r from-indigo-50 via-white to-cyan-50 p-4 shadow-sm">
-    <div className="relative">
+  <div className="flex flex-col md:flex-row flex-wrap items-center gap-4 p-4 bg-gray-800 rounded-2xl shadow-md border border-gray-700">
+    {/* Status Filter */}
+    <div className="relative w-full md:w-60">
       <Filter
-        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500"
-        size={16}
+        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400"
+        size={18}
       />
       <select
         value={statusFilter}
         onChange={(e) => setStatusFilter(e.target.value)}
-        className="appearance-none rounded-xl border border-slate-200 bg-white/70 py-2 pl-9 pr-8 text-sm font-medium text-slate-700 shadow-sm backdrop-blur transition hover:border-indigo-300 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+        className="w-full appearance-none rounded-xl border border-gray-600 bg-gray-700/70 py-2 pl-10 pr-8 text-sm font-medium text-gray-100 shadow-sm backdrop-blur-sm transition hover:border-indigo-300 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400"
       >
         <option value="">All Status</option>
         <option value="To Do">To Do</option>
@@ -27,15 +28,16 @@ const Filters = ({
       </select>
     </div>
 
-    <div className="relative">
+    {/* Priority Filter */}
+    <div className="relative w-full md:w-60">
       <Flag
-        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-rose-500"
-        size={16}
+        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-rose-400"
+        size={18}
       />
       <select
         value={priorityFilter}
         onChange={(e) => setPriorityFilter(e.target.value)}
-        className="appearance-none rounded-xl border border-slate-200 bg-white/70 py-2 pl-9 pr-8 text-sm font-medium text-slate-700 shadow-sm backdrop-blur transition hover:border-rose-300 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-200"
+        className="w-full appearance-none rounded-xl border border-gray-600 bg-gray-700/70 py-2 pl-10 pr-8 text-sm font-medium text-gray-100 shadow-sm backdrop-blur-sm transition hover:border-rose-300 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-400"
       >
         <option value="">All Priority</option>
         <option value="Low">Low</option>
@@ -45,15 +47,16 @@ const Filters = ({
       </select>
     </div>
 
-    <div className="relative ml-auto">
+    {/* Sort Filter */}
+    <div className="relative w-full md:w-60 md:ml-auto">
       <ArrowUpDown
-        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500"
-        size={16}
+        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-emerald-400"
+        size={18}
       />
       <select
         value={sortOrder}
         onChange={(e) => setSortOrder(e.target.value as never)}
-        className="appearance-none rounded-xl border border-slate-200 bg-white/70 py-2 pl-9 pr-8 text-sm font-medium text-slate-700 shadow-sm backdrop-blur transition hover:border-emerald-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+        className="w-full appearance-none rounded-xl border border-gray-600 bg-gray-700/70 py-2 pl-10 pr-8 text-sm font-medium text-gray-100 shadow-sm backdrop-blur-sm transition hover:border-emerald-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400"
       >
         <option value="asc">Due Date ↑</option>
         <option value="desc">Due Date ↓</option>

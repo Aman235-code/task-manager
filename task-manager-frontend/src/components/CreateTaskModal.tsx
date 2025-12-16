@@ -1,5 +1,3 @@
- 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { X, Calendar, Flag, User, CheckCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
@@ -23,11 +21,7 @@ export default function CreateTaskModal({
     status: "To Do",
     assignedToId: "",
   });
-
   const { user } = useAuth();
-
-  const currentUser = user;
-
   const isEdit = Boolean(initialTask);
 
   const [users, setUsers] = useState<any[]>([]);
@@ -36,7 +30,6 @@ export default function CreateTaskModal({
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-
     if (!form.title.trim()) newErrors.title = "Title is required";
     if (!form.description.trim())
       newErrors.description = "Description is required";
@@ -44,7 +37,6 @@ export default function CreateTaskModal({
     if (!form.priority) newErrors.priority = "Priority is required";
     if (!form.status) newErrors.status = "Status is required";
     if (!form.assignedToId) newErrors.assignedToId = "Assignee is required";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -77,15 +69,12 @@ export default function CreateTaskModal({
     const fetchUsers = async () => {
       try {
         setLoadingUsers(true);
-
         const res = await fetch("http://localhost:4000/api/v1/users/all", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         });
-
         if (!res.ok) throw new Error("Unauthorized");
-
         const data = await res.json();
         setUsers(data.users);
       } catch (err) {
@@ -104,44 +93,44 @@ export default function CreateTaskModal({
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  ) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = () => {
     if (!validate()) return;
-
-    onSubmit({
-      ...form,
-      dueDate: new Date(form.dueDate).toISOString(),
-    });
+    onSubmit({ ...form, dueDate: new Date(form.dueDate).toISOString() });
     onClose();
   };
 
+  const inputBase =
+    "w-full rounded-xl border px-4 py-2 text-sm focus:ring-2 focus:outline-none transition";
+
+  const selectBase =
+    "w-full appearance-none rounded-xl border py-2 pl-9 pr-3 text-sm focus:ring-2 focus:outline-none transition";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-lg animate-modal-in rounded-2xl bg-linear-to-br from-white via-white to-indigo-50 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto animate-modal-in rounded-2xl bg-gray-900 p-6 shadow-2xl text-gray-100">
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-full p-1.5 text-slate-500 hover:bg-slate-100"
+          className="absolute right-4 top-4 rounded-full p-1.5 text-gray-400 hover:bg-gray-700 hover:text-white transition"
         >
           <X size={18} />
         </button>
 
         {/* Header */}
-        <div className="mb-5 border-b border-slate-200 pb-3">
-          <h2 className="text-lg font-bold text-slate-800">
+        <div className="mb-5 border-b border-gray-700 pb-3">
+          <h2 className="text-lg font-bold text-white">
             {isEdit ? "Edit Task" : "Create Task"}
           </h2>
-          <p className="mt-1 text-sm text-slate-500">Add task details below</p>
+          <p className="mt-1 text-sm text-gray-400">Add task details below</p>
         </div>
 
         {/* Form */}
         <div className="flex flex-col gap-4">
           {/* Title */}
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-600">
+            <label className="mb-1 block text-xs font-semibold text-gray-400">
               Title
             </label>
             <input
@@ -149,13 +138,11 @@ export default function CreateTaskModal({
               placeholder="Enter task title"
               value={form.title}
               onChange={handleChange}
-              className={`w-full rounded-xl border px-4 py-2 text-sm focus:ring-2
-    ${
-      errors.title
-        ? "border-red-400 focus:ring-red-200"
-        : "border-slate-200 focus:border-indigo-400 focus:ring-indigo-200"
-    }
-  `}
+              className={`${inputBase} ${
+                errors.title
+                  ? "border-red-500 focus:ring-red-400"
+                  : "border-gray-700 focus:border-indigo-500 focus:ring-indigo-500"
+              } bg-gray-800 text-white`}
             />
             {errors.title && (
               <p className="mt-1 text-xs text-red-500">{errors.title}</p>
@@ -164,7 +151,7 @@ export default function CreateTaskModal({
 
           {/* Description */}
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-600">
+            <label className="mb-1 block text-xs font-semibold text-gray-400">
               Description
             </label>
             <textarea
@@ -173,41 +160,37 @@ export default function CreateTaskModal({
               value={form.description}
               onChange={handleChange}
               rows={3}
-              className={`w-full rounded-xl border px-4 py-2 text-sm focus:ring-2
-    ${
-      errors.description
-        ? "border-red-400 focus:ring-red-200"
-        : "border-slate-200 focus:border-indigo-400 focus:ring-indigo-200"
-    }
-  `}
+              className={`${inputBase} ${
+                errors.description
+                  ? "border-red-500 focus:ring-red-400"
+                  : "border-gray-700 focus:border-indigo-500 focus:ring-indigo-500"
+              } bg-gray-800 text-white`}
             />
             {errors.description && (
               <p className="mt-1 text-xs text-red-500">{errors.description}</p>
             )}
           </div>
 
-          {/* Due date */}
+          {/* Due Date */}
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-600">
-              Due date
+            <label className="mb-1 block text-xs font-semibold text-gray-400">
+              Due Date
             </label>
             <div className="relative">
               <Calendar
                 size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400"
               />
               <input
                 type="datetime-local"
                 name="dueDate"
                 value={form.dueDate}
                 onChange={handleChange}
-                className={`w-full rounded-xl border py-2 pl-9 pr-3 text-sm focus:ring-2
-    ${
-      errors.dueDate
-        ? "border-red-400 focus:ring-red-200"
-        : "border-slate-200 focus:border-indigo-400 focus:ring-indigo-200"
-    }
-  `}
+                className={`${inputBase} ${
+                  errors.dueDate
+                    ? "border-red-500 focus:ring-red-400"
+                    : "border-gray-700 focus:border-indigo-500 focus:ring-indigo-500"
+                } pl-10 bg-gray-800 text-white`}
               />
               {errors.dueDate && (
                 <p className="mt-1 text-xs text-red-500">{errors.dueDate}</p>
@@ -217,25 +200,23 @@ export default function CreateTaskModal({
 
           {/* Priority */}
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-600">
+            <label className="mb-1 block text-xs font-semibold text-gray-400">
               Priority
             </label>
             <div className="relative">
               <Flag
                 size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-500"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-rose-400"
               />
               <select
                 name="priority"
                 value={form.priority}
                 onChange={handleChange}
-                className={`w-full appearance-none rounded-xl border py-2 pl-9 pr-3 text-sm focus:ring-2
-    ${
-      errors.priority
-        ? "border-red-400 focus:ring-red-200"
-        : "border-slate-200 focus:border-rose-400 focus:ring-rose-200"
-    }
-  `}
+                className={`${selectBase} ${
+                  errors.priority
+                    ? "border-red-500 focus:ring-red-400"
+                    : "border-gray-700 focus:border-rose-500 focus:ring-rose-500"
+                } pl-10 bg-gray-800 text-white`}
               >
                 <option value="" disabled>
                   Select priority
@@ -253,25 +234,23 @@ export default function CreateTaskModal({
 
           {/* Status */}
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-600">
+            <label className="mb-1 block text-xs font-semibold text-gray-400">
               Status
             </label>
             <div className="relative">
               <CheckCircle2
                 size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-400"
               />
               <select
                 name="status"
                 value={form.status}
                 onChange={handleChange}
-                className={`w-full appearance-none rounded-xl border py-2 pl-9 pr-3 text-sm focus:ring-2
-    ${
-      errors.status
-        ? "border-red-400 focus:ring-red-200"
-        : "border-slate-200 focus:border-emerald-400 focus:ring-emerald-200"
-    }
-  `}
+                className={`${selectBase} ${
+                  errors.status
+                    ? "border-red-500 focus:ring-red-400"
+                    : "border-gray-700 focus:border-emerald-500 focus:ring-emerald-500"
+                } pl-10 bg-gray-800 text-white`}
               >
                 <option value="" disabled>
                   Select status
@@ -287,44 +266,36 @@ export default function CreateTaskModal({
             </div>
           </div>
 
-          {/* Assigned user */}
+          {/* Assigned User */}
           <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-600">
-              Assign to
+            <label className="mb-1 block text-xs font-semibold text-gray-400">
+              Assign To
             </label>
             <div className="relative">
               <User
                 size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-sky-500"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-sky-400"
               />
               <select
                 name="assignedToId"
                 value={form.assignedToId}
                 onChange={handleChange}
                 disabled={loadingUsers}
-                className={`w-full appearance-none rounded-xl border py-2 pl-9 pr-3 text-sm focus:ring-2
-    ${
-      errors.assignedToId
-        ? "border-red-400 focus:ring-red-200"
-        : "border-slate-200 focus:border-sky-400 focus:ring-sky-200"
-    }
-  `}
+                className={`${selectBase} ${
+                  errors.assignedToId
+                    ? "border-red-500 focus:ring-red-400"
+                    : "border-gray-700 focus:border-sky-500 focus:ring-sky-500"
+                } pl-10 bg-gray-800 text-white`}
               >
                 <option value="" disabled>
                   Select user
                 </option>
-
-                {users.map((u) => {
-                  const isSelected = form.assignedToId === u._id;
-
-                  return (
-                    <option key={u._id} value={u._id}>
-                      {isSelected ? "✓ " : ""}
-                      {u.name}
-                      {u._id === currentUser?._id ? " (You)" : ""}
-                    </option>
-                  );
-                })}
+                {users.map((u) => (
+                  <option key={u._id} value={u._id}>
+                    {form.assignedToId === u._id ? "✓ " : ""}
+                    {u.name} {u._id === user?._id ? "(You)" : ""}
+                  </option>
+                ))}
               </select>
               {errors.assignedToId && (
                 <p className="mt-1 text-xs text-red-500">
@@ -337,7 +308,7 @@ export default function CreateTaskModal({
           {/* Submit */}
           <button
             onClick={handleSubmit}
-            className="mt-2 rounded-xl bg-linear-to-r from-indigo-500 to-violet-500 py-2.5 text-sm font-semibold text-white shadow hover:opacity-90"
+            className="mt-2 w-full rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 py-2.5 text-sm font-semibold text-white shadow hover:opacity-90 transition"
           >
             {isEdit ? "Update Task" : "Create Task"}
           </button>

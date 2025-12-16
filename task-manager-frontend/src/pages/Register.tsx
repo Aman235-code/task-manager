@@ -1,4 +1,4 @@
-// src/pages/Register.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,6 +6,7 @@ import { api } from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { User, Mail, Lock } from "lucide-react";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -41,72 +42,68 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
-      <div className="bg-white shadow-lg rounded-lg p-10 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">
+    <div className=" flex items-center justify-center bg-gray-900 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-gray-800 shadow-2xl p-8 space-y-6 text-gray-100">
+        <h2 className="text-3xl font-bold text-center text-indigo-400 mb-6">
           Create Account
         </h2>
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Name</label>
+          {/* Name */}
+          <div className="relative">
+            <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400" />
             <input
               type="text"
               {...register("name")}
               placeholder="Enter your Name"
-              className="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-indigo-400 outline-none"
+              className={`w-full rounded-xl bg-gray-700 px-10 py-2 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition`}
             />
             {errors.name && (
               <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Email
-            </label>
+          {/* Email */}
+          <div className="relative">
+            <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400" />
             <input
               type="email"
               {...register("email")}
               placeholder="Enter your Email"
-              className="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-indigo-400 outline-none"
+              className={`w-full rounded-xl bg-gray-700 px-10 py-2 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition`}
             />
             {errors.email && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.email.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
             )}
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Password
-            </label>
+          {/* Password */}
+          <div className="relative">
+            <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400" />
             <input
               type="password"
               {...register("password")}
               placeholder="Enter your Password"
-              className="w-full border border-gray-300 px-4 py-2 rounded-md focus:ring-2 focus:ring-indigo-400 outline-none"
+              className={`w-full rounded-xl bg-gray-700 px-10 py-2 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition`}
             />
             {errors.password && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.password.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
             )}
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-indigo-600 text-white py-2 rounded-md font-semibold hover:bg-indigo-700 transition"
+            className="w-full bg-gradient-to-r from-indigo-500 to-violet-500 py-2.5 rounded-xl font-semibold text-white hover:opacity-90 transition disabled:opacity-60"
           >
             {isSubmitting ? "Registering..." : "Register"}
           </button>
         </form>
 
-        <p className="mt-5 text-center text-gray-500">
+        <p className="mt-5 text-center text-gray-400">
           Already have an account?{" "}
           <span
-            className="text-indigo-600 font-semibold cursor-pointer hover:underline"
+            className="text-indigo-400 font-semibold cursor-pointer hover:underline"
             onClick={() => navigate("/login")}
           >
             Login
