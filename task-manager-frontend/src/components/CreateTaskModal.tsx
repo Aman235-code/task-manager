@@ -135,7 +135,7 @@ export default function CreateTaskModal({
           {/* Submit */}
           <button
             onClick={handleSubmit}
-            className="mt-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 py-2.5 text-sm font-semibold text-white shadow hover:opacity-90"
+            className="mt-2 rounded-xl bg-linear-to-r from-indigo-500 to-violet-500 py-2.5 text-sm font-semibold text-white shadow hover:opacity-90"
           >
             Create Task
           </button>

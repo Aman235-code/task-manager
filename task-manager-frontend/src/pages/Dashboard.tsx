@@ -183,7 +183,7 @@ const Dashboard = () => {
               </div>
             ))
           ) : (
-            <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-white p-12 text-center shadow-sm">
+            <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-linear-to-br from-slate-50 to-white p-12 text-center shadow-sm">
               <div className="mb-3 rounded-full bg-indigo-100 p-3 text-indigo-600">
                 📋
               </div>
@@ -203,13 +203,9 @@ const Dashboard = () => {
         open={openCreate}
         onClose={() => setOpenCreate(false)}
         onCreate={(task) => {
-          // call API here
-          // add task to state
-          console.log(task);
+          return console.log(task);
         }}
-      >
-        <TaskForm onSuccess={() => setOpenCreate(false)} />
-      </CreateTaskModal>
+      />
     </div>
   );
 };
