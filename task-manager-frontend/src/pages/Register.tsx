@@ -5,6 +5,7 @@ import { z } from "zod";
 import { api } from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -29,11 +30,11 @@ const Register = () => {
   const onSubmit = async (data: RegisterForm) => {
     try {
       const res = await api.post("/api/v1/auth/register", data);
-      console.log("Registered user:", res.data);
-      login(res.data);
-      navigate("/"); // redirect to dashboard
-      alert("Registration successful!");
-      navigate("/login");
+      if (res.status === 201) {
+        login(res.data);
+        navigate("/");
+        toast.success("Registered Successfully");
+      }
     } catch (err: any) {
       alert(err.response?.data?.message || "Registration failed");
     }

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { api } from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -28,10 +29,11 @@ const Login = () => {
   const onSubmit = async (data: LoginForm) => {
     try {
       const res = await api.post("/api/v1/auth/login", data);
-      console.log("Logged in user:", res.data);
-      login(res.data);
-      alert("Login successful!");
-      navigate("/");
+      if (res.status === 200) {
+        login(res.data);
+        toast.success("Login successful!");
+        navigate("/");
+      }
     } catch (err: any) {
       alert(err.response?.data?.message || "Login failed");
     }

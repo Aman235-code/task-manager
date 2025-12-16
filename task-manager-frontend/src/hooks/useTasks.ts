@@ -22,16 +22,11 @@ export const useTasks = () => {
 
 // Create a task
 export const useCreateTask = () => {
-  const queryClient = useQueryClient();
   return useMutation(
-    (task: Partial<Task>) => api.post("/api/v1/tasks", task),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries("tasks");
-      },
-    }
+    (task: Partial<Task>) => api.post("/api/v1/tasks", task)
   );
 };
+
 
 // Update a task
 export const useUpdateTask = () => {

@@ -3,7 +3,7 @@ import { CreateTaskDto, UpdateTaskDto } from "./task.dto";
 import { ITask, TaskPriority, TaskStatus } from "./task.model";
 import { Types } from "mongoose";
 import { z } from "zod";
-import { Notification } from "../notifications/Notification";
+import { Notification } from "../notifications/notification.model";
 
 type CreateTaskInput = z.infer<typeof CreateTaskDto>;
 type UpdateTaskInput = z.infer<typeof UpdateTaskDto>;

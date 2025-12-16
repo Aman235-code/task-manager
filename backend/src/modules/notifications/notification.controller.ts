@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { Notification } from "./Notification";
+import { Notification } from "./notification.model";
 import { Types } from "mongoose";
 
 export async function getMyNotifications(req: Request, res: Response) {
   try {
     const userId = req.user!.id;
+    console.log(userId)
 
     const notifications = await Notification.find({ userId })
       .sort({ createdAt: -1 })

@@ -4,8 +4,11 @@ import {
   markNotificationAsRead,
   markAllAsRead,
 } from "./notification.controller";
+import { authMiddleware } from "../../middlewares/auth.middleware";
 
 const router = Router();
+
+router.use(authMiddleware);
 
 router.get("/",  getMyNotifications);
 router.patch("/:id/read", markNotificationAsRead);
