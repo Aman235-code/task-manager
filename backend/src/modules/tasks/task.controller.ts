@@ -7,6 +7,7 @@ export async function createTask(req: Request, res: Response) {
     const data = CreateTaskDto.parse(req.body);
     const io = req.app.get("io");
     const task = await taskService.createTask(req.user!.id.toString(), data, io);
+    io.emit("taskCreated", task);
     res.status(201).json(task);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
@@ -44,6 +45,7 @@ export async function updateTask(req: Request, res: Response) {
       data,
       io
     );
+    io.emit("taskUpdated", updatedTask);
     res.json(updatedTask);
   } catch (err: any) {
     res.status(400).json({ message: err.message });
@@ -56,6 +58,9 @@ export async function deleteTask(req: Request, res: Response) {
       req.params.id,
       req.user!.id.toString()
     );
+    const io = req.app.get("io");
+    io.emit("taskDeleted", deletedTask);
+
     res.json({ message: "Task deleted", task: deletedTask });
   } catch (err: any) {
     res.status(400).json({ message: err.message });
