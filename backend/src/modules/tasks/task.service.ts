@@ -4,6 +4,7 @@ import { ITask, TaskPriority, TaskStatus } from "./task.model";
 import { Types } from "mongoose";
 import { z } from "zod";
 import { Notification } from "../notifications/notification.model";
+import { HttpError } from "../../utils/httpError";
 
 type CreateTaskInput = z.infer<typeof CreateTaskDto>;
 type UpdateTaskInput = z.infer<typeof UpdateTaskDto>;
@@ -19,7 +20,11 @@ type TaskInput = {
 };
 
 export class TaskService {
-  async createTask(userId: string, data: CreateTaskInput, io?: any): Promise<ITask> {
+  async createTask(
+    userId: string,
+    data: CreateTaskInput,
+    io?: any
+  ): Promise<ITask> {
     const taskData: TaskInput = {
       title: data.title,
       description: data.description,
@@ -27,20 +32,19 @@ export class TaskService {
       priority: (data.priority || TaskPriority.LOW) as TaskPriority,
       status: (data.status || TaskStatus.TODO) as TaskStatus,
       creatorId: new Types.ObjectId(userId),
-      assignedToId: new Types.ObjectId(data.assignedToId),
+      assignedToId: new Types.ObjectId(data.assignedToId)
     };
 
     const task = await taskRepository.create(taskData);
 
     if (io) {
-      // Notify only the creator and assignee
       io.to(userId).emit("taskCreated", task);
       io.to(data.assignedToId).emit("taskCreated", task);
 
       const notification = await Notification.create({
         userId: data.assignedToId,
         taskId: task._id,
-        message: `You were assigned a new task: ${task.title}`,
+        message: `You were assigned a new task: ${task.title}`
       });
 
       io.to(data.assignedToId).emit("notification", notification);
@@ -49,18 +53,30 @@ export class TaskService {
     return task;
   }
 
-  async getTaskById(taskId: string): Promise<ITask | null> {
-    return taskRepository.findById(taskId);
+  async getTaskById(taskId: string): Promise<ITask> {
+    const task = await taskRepository.findById(taskId);
+    if (!task) {
+      throw new HttpError(404, "Task not found");
+    }
+    return task;
   }
 
-  async updateTask(taskId: string, userId: string, data: UpdateTaskInput, io?: any): Promise<ITask | null> {
+  async updateTask(
+    taskId: string,
+    userId: string,
+    data: UpdateTaskInput,
+    io?: any
+  ): Promise<ITask> {
     const task = await taskRepository.findById(taskId);
-    if (!task) throw new Error("Task not found");
+    if (!task) {
+      throw new HttpError(404, "Task not found");
+    }
 
-    if (task.creatorId.toString() !== userId && task.assignedToId.toString() !== userId) {
-      const err: any = new Error("Unauthorized to update this task");
-      err.status = 401;
-      throw err;
+    if (
+      task.creatorId.toString() !== userId &&
+      task.assignedToId.toString() !== userId
+    ) {
+      throw new HttpError(403, "Not allowed to update this task");
     }
 
     const previousAssignee = task.assignedToId?.toString();
@@ -71,25 +87,29 @@ export class TaskService {
       dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
       priority: data.priority as TaskPriority | undefined,
       status: data.status as TaskStatus | undefined,
-      assignedToId: data.assignedToId ? new Types.ObjectId(data.assignedToId) : undefined,
+      assignedToId: data.assignedToId
+        ? new Types.ObjectId(data.assignedToId)
+        : undefined
     };
 
     const updatedTask = await taskRepository.update(taskId, updateData);
-    if (!updatedTask) return null;
+    if (!updatedTask) {
+      throw new HttpError(500, "Failed to update task");
+    }
 
     const newAssignee = updatedTask.assignedToId?.toString();
 
     if (io) {
-      // Notify creator and new assignee
       io.to(task.creatorId.toString()).emit("taskUpdated", updatedTask);
-      io.to(newAssignee!).emit("taskUpdated", updatedTask);
+      if (newAssignee) {
+        io.to(newAssignee).emit("taskUpdated", updatedTask);
+      }
 
-      // Send notification if assignee changed
       if (newAssignee && newAssignee !== previousAssignee) {
         const notification = await Notification.create({
           userId: newAssignee,
           taskId: updatedTask._id,
-          message: `You were assigned a task: ${updatedTask.title}`,
+          message: `You were assigned a task: ${updatedTask.title}`
         });
 
         io.to(newAssignee).emit("notification", notification);
@@ -99,21 +119,24 @@ export class TaskService {
     return updatedTask;
   }
 
-  async deleteTask(taskId: string, userId: string, io?: any): Promise<ITask | null> {
+  async deleteTask(
+    taskId: string,
+    userId: string,
+    io?: any
+  ): Promise<ITask> {
     const task = await taskRepository.findById(taskId);
     if (!task) {
-      const err: any = new Error("Task not found");
-      err.status = 404;
-      throw err;
+      throw new HttpError(404, "Task not found");
     }
 
     if (task.creatorId.toString() !== userId) {
-      const err: any = new Error("Only creator can delete task");
-      err.status = 401;
-      throw err;
+      throw new HttpError(403, "Only the creator can delete this task");
     }
 
     const deletedTask = await taskRepository.delete(taskId);
+    if (!deletedTask) {
+      throw new HttpError(500, "Failed to delete task");
+    }
 
     if (io) {
       io.to(task.creatorId.toString()).emit("taskDeleted", deletedTask);
@@ -122,7 +145,7 @@ export class TaskService {
       const notification = await Notification.create({
         userId: task.assignedToId,
         taskId: task._id,
-        message: `Task deleted: ${task.title}`,
+        message: `Task deleted: ${task.title}`
       });
 
       io.to(task.assignedToId.toString()).emit("notification", notification);

@@ -1,20 +1,24 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import DesktopLinks from "./DesktopLinks";
 import DesktopAuth from "./DesktopAuth";
 import MobileMenu from "./MobileMenu";
+import { api } from "../api/axios";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
-  
 
   const handleLogout = async () => {
-    logout();
-    navigate("/login");
+    const res = await api.post("/api/v1/auth/logout");
+    if (res.status === 200) {
+      toast.success("Logged out");
+      logout();
+      navigate("/login");
+    }
   };
 
   return (

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { api } from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 
 export interface Task {
   _id: string;
@@ -14,11 +15,18 @@ export interface Task {
 
 // Fetch all tasks
 export const useTasks = () => {
-  return useQuery<Task[]>("tasks", async () => {
-    const { data } = await api.get("/api/v1/tasks");
-    return data.tasks;
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ["tasks", user?.id],
+    queryFn: async () => {
+      const { data } = await api.get("/api/v1/tasks");
+      return data.tasks;
+    },
+    enabled: !!user?.id
   });
 };
+
 
 // Create a task
 export const useCreateTask = () => {

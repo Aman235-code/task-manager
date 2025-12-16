@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   useTasks,
   useCreateTask,
@@ -14,6 +15,7 @@ import SummaryCards from "./SummaryCards";
 import CreateTaskModal from "../components/CreateTaskModal";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 import type { Task } from "../hooks/useTasks";
+import toast from "react-hot-toast";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -30,10 +32,14 @@ const Dashboard = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
-  // Socket synchronization
+  const initializedRef = useRef(false);
+
   useEffect(() => {
-    if (realtimeTasks.length === 0 && tasks.length > 0) setRealtimeTasks(tasks);
-  }, [tasks, realtimeTasks.length]);
+    if (!initializedRef.current && tasks.length > 0) {
+      setRealtimeTasks(tasks);
+      initializedRef.current = true;
+    }
+  }, [tasks]);
 
   useEffect(() => {
     socket.on("taskCreated", (task: Task) =>
@@ -120,48 +126,66 @@ const Dashboard = () => {
         }}
         onSubmit={(task) => {
           if (editingTask) {
-            // Update existing task
             updateTaskMutation.mutate(
               { id: editingTask._id, task },
               {
                 onSuccess: (updatedTask) => {
-                  // Update the task in realtimeTasks state
                   setRealtimeTasks((prev) =>
                     prev.map((t) =>
                       t._id === editingTask._id ? updatedTask.data : t
                     )
                   );
+                  toast.success("Task updated successfully");
                   setEditingTask(null);
+                  setOpenCreate(false);
+                },
+                onError: (error: any) => {
+                  const message =
+                    error?.response?.data?.message || "Failed to update task";
+                  toast.error(message);
                 },
               }
             );
           } else {
-            // Create new task
             createTaskMutation.mutate(task, {
               onSuccess: (newTask) => {
+                toast.success("Task created successfully");
                 setRealtimeTasks((prev) => [...prev, newTask.data]);
+                setOpenCreate(false);
+              },
+              onError: (error: any) => {
+                const message =
+                  error?.response?.data?.message || "Failed to create task";
+                toast.error(message);
               },
             });
           }
-
-          setOpenCreate(false);
         }}
       />
 
       <ConfirmDeleteModal
         open={!!taskToDelete}
         loading={deleteTaskMutation.isLoading}
-        onClose={() => setTaskToDelete(null)}
+        onClose={() => {
+          if (!deleteTaskMutation.isLoading) {
+            setTaskToDelete(null);
+          }
+        }}
         onConfirm={() => {
           if (!taskToDelete) return;
 
           deleteTaskMutation.mutate(taskToDelete._id, {
             onSuccess: () => {
-              // Remove task from state immediately
               setRealtimeTasks((prev) =>
                 prev.filter((t) => t._id !== taskToDelete._id)
               );
+              toast.success("Task deleted successfully");
               setTaskToDelete(null);
+            },
+            onError: (error: any) => {
+              const message =
+                error?.response?.data?.message || "Failed to delete task";
+              toast.error(message);
             },
           });
         }}

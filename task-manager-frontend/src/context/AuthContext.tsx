@@ -1,7 +1,14 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-refresh/only-export-components */
 // src/context/AuthContext.tsx
-import { createContext, useContext, useState, type ReactNode, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  type ReactNode,
+  useEffect,
+} from "react";
+import { useQueryClient } from "react-query";
 
 export type AuthUser = {
   _id?: string;
@@ -17,6 +24,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
 
@@ -28,7 +36,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const queryClient = useQueryClient();
+
   const login = (user: AuthUser) => {
+    queryClient.invalidateQueries({
+      queryKey: ["tasks"],
+    });
     setUser(user);
     localStorage.setItem("user", JSON.stringify(user));
   };

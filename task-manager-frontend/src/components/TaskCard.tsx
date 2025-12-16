@@ -1,6 +1,7 @@
 import { Calendar, Pencil, Trash2 } from "lucide-react";
 import type { Task } from "../hooks/useTasks";
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export default function TaskCard({
   task,
@@ -14,33 +15,59 @@ export default function TaskCard({
   const isOverdue =
     new Date(task.dueDate) < new Date() && task.status !== "Completed";
 
-  const [creatorName, setCreatorName] = useState<string>("");
+  type User = {
+    _id: string;
+    name: string;
+    email: string;
+  };
+
+  const [creatorName, setCreatorName] = useState<User | null>(null);
+  const [assignedToName, setAssignedToName] = useState<User | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (!task.creatorId) return;
+    if (!task.creatorId || !task.assignedToId) return;
 
-    const fetchCreator = async () => {
+    const fetchUsers = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:4000/api/v1/users/${task.creatorId}`,
-          {
+        const [creatorRes, assigneeRes] = await Promise.all([
+          fetch(`http://localhost:4000/api/v1/users/${task.creatorId}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
-          }
-        );
+          }),
+          fetch(`http://localhost:4000/api/v1/users/${task.assignedToId}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }),
+        ]);
 
-        if (!res.ok) throw new Error("Failed to fetch creator");
+        if (!creatorRes.ok || !assigneeRes.ok) {
+          throw new Error("Failed to fetch users");
+        }
 
-        const data = await res.json();
-        setCreatorName(data.user?.name || "");
+        const creatorData = await creatorRes.json();
+        const assigneeData = await assigneeRes.json();
+
+        setCreatorName(creatorData.user);
+        setAssignedToName(assigneeData.user);
       } catch (err) {
-        console.error("Creator fetch failed", err);
+        console.error("User fetch failed", err);
       }
     };
 
-    fetchCreator();
-  }, [task.creatorId]);
+    fetchUsers();
+  }, [task.creatorId, task.assignedToId]);
+
+  const getUserLabel = (
+    targetUser: { _id: string; name: string } | null,
+    currentUser: { id: string } | null
+  ) => {
+    if (!targetUser) return "Loading...";
+    if (targetUser._id === currentUser?.id) return "Me";
+    return targetUser.name;
+  };
 
   return (
     <div
@@ -93,17 +120,41 @@ export default function TaskCard({
       </div>
 
       {/* Footer */}
-      <div className="mt-5 space-y-1 text-sm font-medium text-slate-500">
-        <div className="flex items-center gap-2">
-          <Calendar size={15} />
-          <span>{new Date(task.dueDate).toLocaleDateString()}</span>
+      <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-3 text-sm">
+        <div className="flex items-center gap-2 text-slate-600">
+          <Calendar size={15} className="text-slate-500" />
+          <span>
+            Due{" "}
+            <span className="font-medium text-slate-800">
+              {new Date(task.dueDate).toLocaleDateString()}
+            </span>
+          </span>
         </div>
 
-        <div className="text-xs">
-          Created by{" "}
-          <span className="font-semibold text-slate-700">
-            {creatorName || "Loading..."}
-          </span>
+        <div className="mt-3 space-y-2 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
+              CREATED
+            </span>
+            <span className="font-medium text-slate-700">
+              by{" "}
+              <span className="font-semibold text-blue-600">
+                {getUserLabel(creatorName, user)}
+              </span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+              ASSIGNED
+            </span>
+            <span className="font-medium text-slate-700">
+              to{" "}
+              <span className="font-semibold text-emerald-600">
+                {getUserLabel(assignedToName, user)}
+              </span>
+            </span>
+          </div>
         </div>
       </div>
     </div>
