@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+ 
 import { useState, useEffect, useMemo } from "react";
 import {
   useTasks,
@@ -180,7 +180,7 @@ const Dashboard = () => {
           />
           <select
             value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value as any)}
+            onChange={(e) => setSortOrder(e.target.value as never)}
             className="appearance-none rounded-xl border border-slate-200 bg-white/70 py-2 pl-9 pr-8 text-sm font-medium text-slate-700 shadow-sm backdrop-blur transition
                  hover:border-emerald-300 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
           >
