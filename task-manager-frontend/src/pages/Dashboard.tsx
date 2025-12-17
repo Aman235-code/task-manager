@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, type SetStateAction } from "react";
 import {
   useTasks,
   useCreateTask,
@@ -76,11 +77,11 @@ const Dashboard = () => {
 
   // Derived task views
   const assignedToMe = useMemo(
-    () => realtimeTasks.filter((t) => t.assignedToId === user?.id),
+    () => realtimeTasks.filter((t) => t.assignedToId === user?._id),
     [realtimeTasks, user]
   );
   const createdByMe = useMemo(
-    () => realtimeTasks.filter((t) => t.creatorId === user?.id),
+    () => realtimeTasks.filter((t) => t.creatorId === user?._id),
     [realtimeTasks, user]
   );
   const overdueTasks = useMemo(() => {
@@ -134,7 +135,7 @@ const Dashboard = () => {
       {/* Task grid with edit and delete actions */}
       <TaskGrid
         tasks={filteredTasks}
-        onEdit={(task) => {
+        onEdit={(task: SetStateAction<Task | null>) => {
           setEditingTask(task);
           setOpenCreate(true);
         }}

@@ -24,12 +24,12 @@ export const useTasks = () => {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ["tasks", user?.id],
+    queryKey: ["tasks", user?._id],
     queryFn: async () => {
       const { data } = await api.get("/api/v1/tasks");
       return data.tasks;
     },
-    enabled: !!user?.id, // only fetch if user is logged in
+    enabled: !!user?._id, // only fetch if user is logged in
   });
 };
 
@@ -45,11 +45,11 @@ export const useCreateTask = () => {
     (task: Partial<Task>) => api.post("/api/v1/tasks", task),
     {
       onSuccess: () => {
-        if (!user?.id) return;
+        if (!user?._id) return;
 
         // Invalidate task queries to refresh the list
         queryClient.invalidateQueries({
-          queryKey: ["tasks", user.id],
+          queryKey: ["tasks", user._id],
         });
       },
     }
@@ -69,11 +69,11 @@ export const useUpdateTask = () => {
       api.put(`/api/v1/tasks/${id}`, task),
     {
       onSuccess: () => {
-        if (!user?.id) return;
+        if (!user?._id) return;
 
         // Refresh tasks after update
         queryClient.invalidateQueries({
-          queryKey: ["tasks", user.id],
+          queryKey: ["tasks", user._id],
         });
       },
     }
@@ -92,11 +92,11 @@ export const useDeleteTask = () => {
     (id: string) => api.delete(`/api/v1/tasks/${id}`),
     {
       onSuccess: () => {
-        if (!user?.id) return;
+        if (!user?._id) return;
 
         // Refresh tasks after deletion
         queryClient.invalidateQueries({
-          queryKey: ["tasks", user.id],
+          queryKey: ["tasks", user._id],
         });
       },
     }

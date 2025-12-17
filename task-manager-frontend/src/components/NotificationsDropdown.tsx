@@ -1,9 +1,9 @@
+/* eslint-disable no-empty-pattern */
 // components/NotificationsDropdown.tsx
 import { FiCheck, FiTrash2 } from "react-icons/fi";
 import { useNotifications } from "../context/NotificationContext";
-import toast from "react-hot-toast";
 
-const NotificationsDropdown = ({ onClose }: { onClose?: () => void }) => {
+const NotificationsDropdown = ({ }: { onClose?: () => void }) => {
   const { notifications, markAsRead, markAllAsRead, deleteNotification } =
     useNotifications();
 
@@ -49,7 +49,7 @@ const NotificationsDropdown = ({ onClose }: { onClose?: () => void }) => {
 
             <div className="flex-1 min-w-0">
               <p
-                className={`text-sm break-words ${
+                className={`text-sm wrap-break-word ${
                   n.read ? "text-gray-400" : "text-gray-100 font-semibold"
                 }`}
               >

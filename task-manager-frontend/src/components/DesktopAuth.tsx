@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { FiBell, FiLogIn, FiLogOut } from "react-icons/fi";
 import { useNotifications } from "../context/NotificationContext";
 import NotificationsDropdown from "./NotificationsDropdown";
 
+
 const DesktopAuth = ({ user, logout }: { user: any; logout: () => void }) => {
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
-  const { notifications, setNotifications } = useNotifications();
+  const { notifications } = useNotifications();
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   // Close dropdown if clicked outside

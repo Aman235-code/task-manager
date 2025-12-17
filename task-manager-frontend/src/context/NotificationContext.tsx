@@ -1,10 +1,12 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-refresh/only-export-components */
 // context/NotificationContext.tsx
 import {
   createContext,
   useContext,
   useEffect,
   useState,
-  ReactNode,
+  type ReactNode,
 } from "react";
 import { api } from "../api/axios";
 import { useAuth } from "./AuthContext";
@@ -77,10 +79,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
    * Initialize socket connection when user logs in
    */
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?._id) return;
 
     const socketClient = io("http://localhost:4000", {
-      auth: { userId: user.id },
+      auth: { userId: user._id },
     });
 
     socketClient.on("connect", () => console.log("Socket connected"));
@@ -95,13 +97,13 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       socketClient.disconnect();
     };
-  }, [user?.id]);
+  }, [user?._id]);
 
   /**
    * Fetch existing notifications from backend on user login
    */
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?._id) return;
 
     const fetchNotifications = async () => {
       try {
@@ -113,7 +115,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     };
 
     fetchNotifications();
-  }, [user?.id]);
+  }, [user?._id]);
 
   /** Add a notification locally */
   const addNotification = (notif: Notification) => {
@@ -175,7 +177,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
  * @throws Will throw an error if used outside of NotificationProvider
  * @returns {NotificationContextType} Notifications context
  */
-export const useNotifications = () => {
+export const useNotifications = (): NotificationContextType => {
   const context = useContext(NotificationContext);
   if (!context) {
     throw new Error(
