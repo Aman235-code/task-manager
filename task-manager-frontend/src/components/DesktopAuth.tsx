@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { FiBell, FiLogIn, FiLogOut } from "react-icons/fi";
+import { Bell, LogOut, LogIn } from "lucide-react";
 import { useNotifications } from "../context/NotificationContext";
 import NotificationsDropdown from "./NotificationsDropdown";
 
@@ -29,7 +28,7 @@ const DesktopAuth = ({ user, logout }: { user: any; logout: () => void }) => {
       {user && (
         <div className="relative">
           <button onClick={() => setNotifOpen(!notifOpen)} className="relative">
-            <FiBell size={20} className="text-white cursor-pointer" />
+            <Bell size={20} className="text-white cursor-pointer" />
             {unreadCount > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
                 {unreadCount}
@@ -52,7 +51,7 @@ const DesktopAuth = ({ user, logout }: { user: any; logout: () => void }) => {
             onClick={logout}
             className="flex items-center gap-1 bg-white text-indigo-600 px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-50 transition"
           >
-            <FiLogOut /> Logout
+            <LogOut /> Logout
           </button>
         </>
       ) : (
@@ -61,7 +60,7 @@ const DesktopAuth = ({ user, logout }: { user: any; logout: () => void }) => {
             to="/login"
             className="flex items-center gap-1 bg-white text-indigo-600 px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-50 transition"
           >
-            <FiLogIn /> Login
+            <LogIn /> Login
           </Link>
           <Link
             to="/register"

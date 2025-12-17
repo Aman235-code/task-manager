@@ -1,6 +1,6 @@
 /* eslint-disable no-empty-pattern */
 // components/NotificationsDropdown.tsx
-import { FiCheck, FiTrash2 } from "react-icons/fi";
+import { Check, Trash2 } from "lucide-react";
 import { useNotifications } from "../context/NotificationContext";
 
 const NotificationsDropdown = ({ }: { onClose?: () => void }) => {
@@ -67,7 +67,7 @@ const NotificationsDropdown = ({ }: { onClose?: () => void }) => {
                   }}
                   className="text-emerald-400 hover:text-emerald-300"
                 >
-                  <FiCheck size={16} />
+                  <Check size={16} />
                 </button>
               )}
 
@@ -78,7 +78,7 @@ const NotificationsDropdown = ({ }: { onClose?: () => void }) => {
                 }}
                 className="text-rose-400 hover:text-rose-300"
               >
-                <FiTrash2 size={16} />
+                <Trash2 size={16} />
               </button>
             </div>
           </div>

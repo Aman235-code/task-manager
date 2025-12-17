@@ -2,6 +2,7 @@ import { Calendar, Pencil, Trash2, User, Flag } from "lucide-react";
 import type { Task } from "../hooks/useTasks";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import type { AuthUser } from "../context/AuthContext";
 
 export default function TaskCard({
   task,
@@ -27,14 +28,19 @@ export default function TaskCard({
       try {
         const [creatorRes, assigneeRes] = await Promise.all([
           fetch(`http://localhost:4000/api/v1/users/${task.creatorId}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
           }),
           fetch(`http://localhost:4000/api/v1/users/${task.assignedToId}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
           }),
         ]);
 
-        if (!creatorRes.ok || !assigneeRes.ok) throw new Error("Failed to fetch users");
+        if (!creatorRes.ok || !assigneeRes.ok)
+          throw new Error("Failed to fetch users");
 
         const creatorData = await creatorRes.json();
         const assigneeData = await assigneeRes.json();
@@ -48,24 +54,31 @@ export default function TaskCard({
     fetchUsers();
   }, [task.creatorId, task.assignedToId]);
 
-  const getUserLabel = (targetUser: UserType | null, currentUser: { id: string } | null) => {
+  const getUserLabel = (
+    targetUser: UserType | null,
+    currentUser: AuthUser | null
+  ) => {
     if (!targetUser) return "Loading...";
-    if (targetUser._id === currentUser?.id) return "Me";
+    if (targetUser._id === currentUser?._id) return "Me";
     return targetUser.name;
   };
 
   return (
     <div
       className={`group relative overflow-hidden rounded-2xl border transition-all hover:-translate-y-1 hover:shadow-2xl
-        ${isOverdue ? "border-red-500 bg-gray-900" : "border-gray-700 bg-gray-800"}
+        ${
+          isOverdue
+            ? "border-red-500 bg-gray-900"
+            : "border-gray-700 bg-gray-800"
+        }
       `}
     >
       {/* Top gradient bar */}
       <div
         className={`absolute inset-x-0 top-0 h-1.5 rounded-t-xl ${
           isOverdue
-            ? "bg-gradient-to-r from-red-500 to-rose-500"
-            : "bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-500"
+            ? "bg-linear-to-r from-red-500 to-rose-500"
+            : "bg-linear-to-r from-indigo-500 via-sky-500 to-cyan-500"
         }`}
       />
 
@@ -139,7 +152,13 @@ const Badge = ({ text, danger }: { text: string; danger?: boolean }) => {
   const base = "rounded-full px-3 py-1 text-xs font-semibold shadow-sm";
 
   if (danger) {
-    return <span className={`${base} bg-gradient-to-r from-red-500 to-rose-500 text-white`}>{text}</span>;
+    return (
+      <span
+        className={`${base} bg-gradient-to-r from-red-500 to-rose-500 text-white`}
+      >
+        {text}
+      </span>
+    );
   }
 
   const map: Record<string, string> = {
@@ -153,5 +172,9 @@ const Badge = ({ text, danger }: { text: string; danger?: boolean }) => {
     Urgent: "bg-rose-500 text-white",
   };
 
-  return <span className={`${base} ${map[text] || "bg-indigo-500 text-white"}`}>{text}</span>;
+  return (
+    <span className={`${base} ${map[text] || "bg-indigo-500 text-white"}`}>
+      {text}
+    </span>
+  );
 };

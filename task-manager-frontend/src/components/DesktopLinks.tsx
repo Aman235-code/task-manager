@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NavLink } from "react-router-dom";
-import { FiHome, FiUser } from "react-icons/fi";
+import { Home, User } from "lucide-react";
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition ${
@@ -15,10 +15,10 @@ const DesktopLinks = ({ user }: { user: any }) => {
   return (
     <div className="hidden md:flex items-center gap-4">
       <NavLink to="/" className={navLinkClass}>
-        <FiHome /> Dashboard
+        <Home /> Dashboard
       </NavLink>
       <NavLink to="/profile" className={navLinkClass}>
-        <FiUser /> Profile
+        <User /> Profile
       </NavLink>
     </div>
   );
