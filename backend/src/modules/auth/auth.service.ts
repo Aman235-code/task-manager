@@ -54,12 +54,12 @@ export async function registerUser(
 export async function loginUser(email: string, password: string) {
   const user = await User.findOne({ email });
   if (!user) {
-    throw new HttpError(401, "Invalid email or password");
+    throw new HttpError(401, "Invalid credentials");
   }
 
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    throw new HttpError(401, "Invalid email or password");
+    throw new HttpError(401, "Invalid credentials");
   }
 
   const token = signToken({ userId: user._id });

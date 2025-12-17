@@ -116,7 +116,7 @@ export class TaskService {
       task.creatorId.toString() !== userId &&
       task.assignedToId.toString() !== userId
     ) {
-      throw new HttpError(403, "Not allowed to update this task");
+      throw new HttpError(403, "Unauthorized to update this task");
     }
 
     const previousAssignee = task.assignedToId?.toString();
