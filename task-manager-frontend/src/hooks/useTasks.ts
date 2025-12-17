@@ -2,6 +2,9 @@ import { useQuery, useMutation, useQueryClient } from "react-query";
 import { api } from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 
+/**
+ * Task interface representing the structure of a task object
+ */
 export interface Task {
   _id: string;
   title: string;
@@ -13,7 +16,10 @@ export interface Task {
   assignedToId: string;
 }
 
-// Fetch all tasks
+/**
+ * Custom hook to fetch all tasks for the current user
+ * @returns React Query object with tasks data, loading, and error state
+ */
 export const useTasks = () => {
   const { user } = useAuth();
 
@@ -23,12 +29,14 @@ export const useTasks = () => {
       const { data } = await api.get("/api/v1/tasks");
       return data.tasks;
     },
-    enabled: !!user?.id
+    enabled: !!user?.id, // only fetch if user is logged in
   });
 };
 
-
-// Create a task
+/**
+ * Custom hook to create a new task
+ * @returns Mutation object with create task function and status
+ */
 export const useCreateTask = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -39,17 +47,19 @@ export const useCreateTask = () => {
       onSuccess: () => {
         if (!user?.id) return;
 
+        // Invalidate task queries to refresh the list
         queryClient.invalidateQueries({
-          queryKey: ["tasks", user.id]
+          queryKey: ["tasks", user.id],
         });
-      }
+      },
     }
   );
 };
 
-
-
-// Update a task
+/**
+ * Custom hook to update an existing task
+ * @returns Mutation object with update task function and status
+ */
 export const useUpdateTask = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -61,15 +71,19 @@ export const useUpdateTask = () => {
       onSuccess: () => {
         if (!user?.id) return;
 
+        // Refresh tasks after update
         queryClient.invalidateQueries({
-          queryKey: ["tasks", user.id]
+          queryKey: ["tasks", user.id],
         });
-      }
+      },
     }
   );
 };
 
-// Delete a task
+/**
+ * Custom hook to delete a task
+ * @returns Mutation object with delete task function and status
+ */
 export const useDeleteTask = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -80,10 +94,11 @@ export const useDeleteTask = () => {
       onSuccess: () => {
         if (!user?.id) return;
 
+        // Refresh tasks after deletion
         queryClient.invalidateQueries({
-          queryKey: ["tasks", user.id]
+          queryKey: ["tasks", user.id],
         });
-      }
+      },
     }
   );
 };

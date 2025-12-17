@@ -7,11 +7,19 @@ import MobileMenu from "./MobileMenu";
 import { api } from "../api/axios";
 import toast from "react-hot-toast";
 
+/**
+ * Navbar component that displays the application brand, navigation links,
+ * user authentication actions, and responsive mobile menu.
+ */
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  /**
+   * Handles user logout by calling the API, showing a toast notification,
+   * updating the auth context, and redirecting to the login page.
+   */
   const handleLogout = async () => {
     const res = await api.post("/api/v1/auth/logout");
     if (res.status === 200) {
@@ -30,13 +38,13 @@ const Navbar = () => {
             TaskManager
           </Link>
 
-          {/* Desktop links */}
+          {/* Desktop navigation links */}
           <DesktopLinks user={user} />
 
-          {/* Desktop auth & notifications */}
+          {/* Desktop authentication and notifications */}
           <DesktopAuth user={user} logout={handleLogout} />
 
-          {/* Mobile menu toggle */}
+          {/* Mobile menu toggle button */}
           <button
             className="md:hidden text-white text-2xl"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -45,7 +53,7 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile menu (shown when toggled) */}
         {mobileOpen && <MobileMenu user={user} logout={handleLogout} />}
       </div>
     </nav>

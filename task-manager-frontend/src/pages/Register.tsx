@@ -8,14 +8,23 @@ import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import { User, Mail, Lock } from "lucide-react";
 
+/**
+ * Zod schema for registration form validation
+ */
 const registerSchema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+/** Type for registration form inputs */
 type RegisterForm = z.infer<typeof registerSchema>;
 
+/**
+ * Register component renders a registration form.
+ * Uses React Hook Form with Zod for validation.
+ * On successful registration, logs the user in and navigates to the dashboard.
+ */
 const Register = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -28,6 +37,10 @@ const Register = () => {
     resolver: zodResolver(registerSchema),
   });
 
+  /**
+   * Handles form submission, calls the registration API, logs in the user, and navigates.
+   * @param data - Registration form data containing name, email, and password
+   */
   const onSubmit = async (data: RegisterForm) => {
     try {
       const res = await api.post("/api/v1/auth/register", data);
@@ -48,43 +61,44 @@ const Register = () => {
           Create Account
         </h2>
 
+        {/* Registration Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Name */}
+          {/* Name Input */}
           <div className="relative">
             <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400" />
             <input
               type="text"
               {...register("name")}
               placeholder="Enter your Name"
-              className={`w-full rounded-xl bg-gray-700 px-10 py-2 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition`}
+              className="w-full rounded-xl bg-gray-700 px-10 py-2 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
             />
             {errors.name && (
               <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
 
-          {/* Email */}
+          {/* Email Input */}
           <div className="relative">
             <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400" />
             <input
               type="email"
               {...register("email")}
               placeholder="Enter your Email"
-              className={`w-full rounded-xl bg-gray-700 px-10 py-2 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition`}
+              className="w-full rounded-xl bg-gray-700 px-10 py-2 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
             />
             {errors.email && (
               <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
             )}
           </div>
 
-          {/* Password */}
+          {/* Password Input */}
           <div className="relative">
             <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400" />
             <input
               type="password"
               {...register("password")}
               placeholder="Enter your Password"
-              className={`w-full rounded-xl bg-gray-700 px-10 py-2 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition`}
+              className="w-full rounded-xl bg-gray-700 px-10 py-2 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
             />
             {errors.password && (
               <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
@@ -94,7 +108,7 @@ const Register = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-indigo-500 to-violet-500 py-2.5 rounded-xl font-semibold text-white hover:opacity-90 transition disabled:opacity-60"
+            className="w-full bg-linear-to-r from-indigo-500 to-violet-500 py-2.5 rounded-xl font-semibold text-white hover:opacity-90 transition disabled:opacity-60"
           >
             {isSubmitting ? "Registering..." : "Register"}
           </button>

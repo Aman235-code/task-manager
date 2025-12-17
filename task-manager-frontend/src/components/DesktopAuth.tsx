@@ -1,18 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { FiBell, FiCheck, FiLogIn, FiLogOut, FiTrash2 } from "react-icons/fi";
+import { FiBell, FiLogIn, FiLogOut } from "react-icons/fi";
 import { useNotifications } from "../context/NotificationContext";
-import { api } from "../api/axios";
 import NotificationsDropdown from "./NotificationsDropdown";
 
 const DesktopAuth = ({ user, logout }: { user: any; logout: () => void }) => {
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
-  const { notifications, markAsRead, setNotifications } = useNotifications();
+  const { notifications, setNotifications } = useNotifications();
 
   const unreadCount = notifications.filter((n) => !n.read).length;
-  const { deleteNotification } = useNotifications();
-
   // Close dropdown if clicked outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -23,15 +20,6 @@ const DesktopAuth = ({ user, logout }: { user: any; logout: () => void }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const markAllAsRead = async () => {
-    try {
-      await api.patch("/api/v1/notifications/read-all");
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   return (
     <div className="hidden md:flex items-center gap-4 relative" ref={notifRef}>

@@ -1,16 +1,23 @@
 import { X, Calendar, Flag, User, CheckCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-
+/**
+ * Modal component for creating or editing a task.
+ * Fetches users for assignment, handles form validation, and submits task data.
+ */
 export default function CreateTaskModal({
   open,
   onClose,
   onSubmit,
   initialTask,
 }: {
+  /** Whether the modal is open */
   open: boolean;
+  /** Function to close the modal */
   onClose: () => void;
+  /** Function to handle task submission */
   onSubmit: (task: any) => void;
+  /** Optional task to edit */
   initialTask?: any;
 }) {
   const [form, setForm] = useState({
@@ -28,6 +35,10 @@ export default function CreateTaskModal({
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  /**
+   * Validates form fields and sets errors.
+   * @returns true if form is valid, false otherwise
+   */
   const validate = () => {
     const newErrors: Record<string, string> = {};
     if (!form.title.trim()) newErrors.title = "Title is required";
@@ -63,6 +74,7 @@ export default function CreateTaskModal({
     }
   }, [initialTask, open]);
 
+  // Fetch users when modal opens
   useEffect(() => {
     if (!open) return;
 
@@ -89,12 +101,19 @@ export default function CreateTaskModal({
 
   if (!open) return null;
 
+  /**
+   * Updates form state on input change
+   * @param e - Input change event
+   */
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  /**
+   * Handles form submission, validates, and triggers onSubmit prop
+   */
   const handleSubmit = () => {
     if (!validate()) return;
     onSubmit({ ...form, dueDate: new Date(form.dueDate).toISOString() });

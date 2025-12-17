@@ -17,6 +17,12 @@ import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 import type { Task } from "../hooks/useTasks";
 import toast from "react-hot-toast";
 
+/**
+ * Dashboard page component.
+ *
+ * Displays summary cards, task grid, filters, and modals for creating/updating/deleting tasks.
+ * Supports real-time updates via WebSocket.
+ */
 const Dashboard = () => {
   const { user } = useAuth();
   const { data: tasks = [], isLoading, error } = useTasks();
@@ -24,6 +30,7 @@ const Dashboard = () => {
   const updateTaskMutation = useUpdateTask();
   const deleteTaskMutation = useDeleteTask();
 
+  // Local state for real-time tasks and UI
   const [realtimeTasks, setRealtimeTasks] = useState<Task[]>([]);
   const [openCreate, setOpenCreate] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
@@ -34,6 +41,9 @@ const Dashboard = () => {
 
   const initializedRef = useRef(false);
 
+  /**
+   * Initialize real-time tasks once tasks are loaded.
+   */
   useEffect(() => {
     if (!initializedRef.current && tasks.length > 0) {
       setRealtimeTasks(tasks);
@@ -41,6 +51,9 @@ const Dashboard = () => {
     }
   }, [tasks]);
 
+  /**
+   * Subscribe to task events from socket for real-time updates.
+   */
   useEffect(() => {
     socket.on("taskCreated", (task: Task) =>
       setRealtimeTasks((prev) => [...prev, task])
@@ -53,6 +66,7 @@ const Dashboard = () => {
     socket.on("taskDeleted", (id: string) =>
       setRealtimeTasks((prev) => prev.filter((t) => t._id !== id))
     );
+
     return () => {
       socket.off("taskCreated");
       socket.off("taskUpdated");
@@ -76,6 +90,9 @@ const Dashboard = () => {
     );
   }, [realtimeTasks]);
 
+  /**
+   * Filtered and sorted tasks based on user selection.
+   */
   const filteredTasks = useMemo(() => {
     let temp = [...realtimeTasks];
     if (statusFilter) temp = temp.filter((t) => t.status === statusFilter);
@@ -94,12 +111,17 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
+      {/* Header with create button */}
       <Header onCreate={() => setOpenCreate(true)} />
+
+      {/* Summary cards for assigned, created, and overdue tasks */}
       <SummaryCards
         assignedToMe={assignedToMe}
         createdByMe={createdByMe}
         overdueTasks={overdueTasks}
       />
+
+      {/* Filters for status, priority, and sort order */}
       <Filters
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
@@ -108,6 +130,8 @@ const Dashboard = () => {
         sortOrder={sortOrder}
         setSortOrder={setSortOrder}
       />
+
+      {/* Task grid with edit and delete actions */}
       <TaskGrid
         tasks={filteredTasks}
         onEdit={(task) => {
@@ -117,6 +141,7 @@ const Dashboard = () => {
         onDelete={setTaskToDelete}
       />
 
+      {/* Modal for creating/updating tasks */}
       <CreateTaskModal
         open={openCreate}
         initialTask={editingTask}
@@ -163,6 +188,7 @@ const Dashboard = () => {
         }}
       />
 
+      {/* Modal for confirming task deletion */}
       <ConfirmDeleteModal
         open={!!taskToDelete}
         loading={deleteTaskMutation.isLoading}

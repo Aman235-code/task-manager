@@ -11,6 +11,9 @@ import { useAuth } from "./AuthContext";
 import { io, Socket } from "socket.io-client";
 import toast from "react-hot-toast";
 
+/**
+ * Represents a single notification
+ */
 export type Notification = {
   _id: string;
   message: string;
@@ -19,26 +22,60 @@ export type Notification = {
   createdAt: string;
 };
 
+/**
+ * Shape of the Notification context
+ */
 type NotificationContextType = {
+  /** Current list of notifications */
   notifications: Notification[];
+
+  /**
+   * Add a notification to the list
+   * @param notif Notification to add
+   */
   addNotification: (notif: Notification) => void;
+
+  /**
+   * Mark a single notification as read
+   * @param id Notification ID
+   */
   markAsRead: (id: string) => void;
+
+  /** Mark all notifications as read */
   markAllAsRead: () => void;
+
+  /** Socket instance for real-time notifications */
   socket?: Socket;
+
+  /** Setter for notifications state */
   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
+
+  /**
+   * Delete a notification
+   * @param id Notification ID
+   */
   deleteNotification: (id: string) => void;
 };
 
+/** Context for notifications */
 const NotificationContext = createContext<NotificationContextType | undefined>(
   undefined
 );
 
+/**
+ * Provider component for notifications
+ * 
+ * @param {object} props
+ * @param {ReactNode} props.children - Components that will have access to notifications
+ */
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
 
-  // Initialize socket when user logs in
+  /**
+   * Initialize socket connection when user logs in
+   */
   useEffect(() => {
     if (!user?.id) return;
 
@@ -60,7 +97,9 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [user?.id]);
 
-  // Fetch existing notifications from backend
+  /**
+   * Fetch existing notifications from backend on user login
+   */
   useEffect(() => {
     if (!user?.id) return;
 
@@ -76,10 +115,12 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     fetchNotifications();
   }, [user?.id]);
 
+  /** Add a notification locally */
   const addNotification = (notif: Notification) => {
     setNotifications((prev) => [notif, ...prev]);
   };
 
+  /** Mark a single notification as read */
   const markAsRead = async (id: string) => {
     try {
       await api.patch(`/api/v1/notifications/${id}/read`);
@@ -91,6 +132,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /** Mark all notifications as read */
   const markAllAsRead = async () => {
     try {
       await api.patch(`/api/v1/notifications/read-all`);
@@ -100,6 +142,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /** Delete a notification */
   const deleteNotification = async (id: string) => {
     try {
       await api.delete(`/api/v1/notifications/delete/${id}`);
@@ -127,6 +170,11 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+/**
+ * Hook to access notifications context
+ * @throws Will throw an error if used outside of NotificationProvider
+ * @returns {NotificationContextType} Notifications context
+ */
 export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (!context) {
