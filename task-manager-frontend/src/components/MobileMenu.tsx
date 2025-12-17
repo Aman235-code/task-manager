@@ -1,52 +1,74 @@
-import { NavLink, Link } from "react-router-dom";
-import { FiHome, FiUser, FiLogIn, FiLogOut, FiBell } from "react-icons/fi";
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
+import { FiHome, FiUser, FiBell, FiLogOut } from "react-icons/fi";
+import NotificationsDropdown from "./NotificationsDropdown";
+import { useNotifications } from "../context/NotificationContext";
 
-const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  `flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition ${
-    isActive
-      ? "bg-white/20 text-white"
-      : "text-white/80 hover:text-white hover:bg-white/10"
-  }`;
+const MobileMenu = ({ user, logout }: any) => {
+  const [notifOpen, setNotifOpen] = useState(false);
+  const { notifications } = useNotifications();
 
-const MobileMenu = ({ user, logout }: { user: any; logout: () => void }) => (
-  <div className="md:hidden mt-2 flex flex-col gap-2 pb-4">
-    {user && (
-      <>
-        <NavLink to="/" className={navLinkClass} onClick={() => {}}>
-          <FiHome /> Dashboard
-        </NavLink>
-        <NavLink to="/profile" className={navLinkClass} onClick={() => {}}>
-          <FiUser /> Profile
-        </NavLink>
-        <div className="relative px-3 py-2 rounded-md bg-white/10">
-          <FiBell size={20} className="text-white inline" />{" "}
-          <span className="ml-2 text-white text-sm">Notifications</span>
-        </div>
-        <button
-          onClick={logout}
-          className="flex items-center gap-1 bg-white text-indigo-600 px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-50 transition"
-        >
-          <FiLogOut /> Logout
-        </button>
-      </>
-    )}
-    {!user && (
-      <>
-        <Link
-          to="/login"
-          className="flex items-center gap-1 bg-white text-indigo-600 px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-50 transition"
-        >
-          <FiLogIn /> Login
-        </Link>
-        <Link
-          to="/register"
-          className="bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-800 transition"
-        >
-          Register
-        </Link>
-      </>
-    )}
-  </div>
-);
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  return (
+    <div className="md:hidden mt-2 flex flex-col gap-2 pb-4">
+      {user && (
+        <>
+          <NavLink to="/" className="px-3 py-2 text-white/80">
+            <FiHome /> Dashboard
+          </NavLink>
+
+          <NavLink to="/profile" className="px-3 py-2 text-white/80">
+            <FiUser /> Profile
+          </NavLink>
+
+          <button
+            onClick={() => setNotifOpen((v) => !v)}
+            className="flex items-center gap-2 px-3 py-2 rounded-md text-white/80 hover:bg-white/10"
+          >
+            {/* Bell wrapper */}
+            <span className="relative inline-flex">
+              <FiBell size={18} />
+
+              {unreadCount > 0 && (
+                <span
+                  className="
+          absolute
+          -top-1.5
+          -right-1.5
+          h-4 w-4
+          rounded-full
+          bg-red-500
+          text-white
+          text-[10px]
+          font-semibold
+          flex items-center justify-center
+        "
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </span>
+
+            <span className="text-sm">Notifications</span>
+          </button>
+
+          {notifOpen && (
+            <div className="mt-2">
+              <NotificationsDropdown />
+            </div>
+          )}
+
+          <button
+            onClick={logout}
+            className="mt-2 flex items-center gap-2 bg-white text-indigo-600 px-4 py-2 rounded-md"
+          >
+            <FiLogOut /> Logout
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
 
 export default MobileMenu;

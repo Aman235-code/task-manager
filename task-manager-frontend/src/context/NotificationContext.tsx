@@ -9,6 +9,7 @@ import {
 import { api } from "../api/axios";
 import { useAuth } from "./AuthContext";
 import { io, Socket } from "socket.io-client";
+import toast from "react-hot-toast";
 
 export type Notification = {
   _id: string;
@@ -25,6 +26,7 @@ type NotificationContextType = {
   markAllAsRead: () => void;
   socket?: Socket;
   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
+  deleteNotification: (id: string) => void;
 };
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
@@ -98,6 +100,16 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const deleteNotification = async (id: string) => {
+    try {
+      await api.delete(`/api/v1/notifications/delete/${id}`);
+      setNotifications((prev) => prev.filter((n) => n._id !== id));
+      toast.success("Notification deleted");
+    } catch (err) {
+      console.error("Failed to delete notification:", err);
+    }
+  };
+
   return (
     <NotificationContext.Provider
       value={{
@@ -105,6 +117,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         addNotification,
         markAsRead,
         markAllAsRead,
+        deleteNotification,
         socket,
         setNotifications,
       }}

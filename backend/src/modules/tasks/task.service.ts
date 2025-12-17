@@ -19,7 +19,25 @@ type TaskInput = {
   assignedToId: Types.ObjectId;
 };
 
+/**
+ * Service layer for task-related operations.
+ *
+ * Handles business logic including creation, updates,
+ * deletion, and user-specific task queries.
+ */
 export class TaskService {
+  /**
+   * Creates a new task.
+   *
+   * Optionally emits socket events and creates notifications
+   * for the assigned user.
+   *
+   * @param userId - ID of the user creating the task
+   * @param data - Task creation input
+   * @param io - Optional Socket.IO instance for real-time events
+   * @returns The created task document
+   * @throws HttpError 500 if creation fails
+   */
   async createTask(
     userId: string,
     data: CreateTaskInput,
@@ -32,7 +50,7 @@ export class TaskService {
       priority: (data.priority || TaskPriority.LOW) as TaskPriority,
       status: (data.status || TaskStatus.TODO) as TaskStatus,
       creatorId: new Types.ObjectId(userId),
-      assignedToId: new Types.ObjectId(data.assignedToId)
+      assignedToId: new Types.ObjectId(data.assignedToId),
     };
 
     const task = await taskRepository.create(taskData);
@@ -44,7 +62,7 @@ export class TaskService {
       const notification = await Notification.create({
         userId: data.assignedToId,
         taskId: task._id,
-        message: `You were assigned a new task: ${task.title}`
+        message: `You were assigned a new task: ${task.title}`,
       });
 
       io.to(data.assignedToId).emit("notification", notification);
@@ -53,6 +71,13 @@ export class TaskService {
     return task;
   }
 
+  /**
+   * Retrieves a task by ID.
+   *
+   * @param taskId - Task ID
+   * @returns The task document
+   * @throws HttpError 404 if task is not found
+   */
   async getTaskById(taskId: string): Promise<ITask> {
     const task = await taskRepository.findById(taskId);
     if (!task) {
@@ -61,6 +86,21 @@ export class TaskService {
     return task;
   }
 
+  /**
+   * Updates a task by ID.
+   *
+   * Checks that the user is either the creator or assignee.
+   * Optionally emits socket events and creates notifications for new assignees.
+   *
+   * @param taskId - Task ID
+   * @param userId - User performing the update
+   * @param data - Task update input
+   * @param io - Optional Socket.IO instance for real-time events
+   * @returns The updated task document
+   * @throws HttpError 403 if user is not authorized
+   * @throws HttpError 404 if task is not found
+   * @throws HttpError 500 if update fails
+   */
   async updateTask(
     taskId: string,
     userId: string,
@@ -89,7 +129,7 @@ export class TaskService {
       status: data.status as TaskStatus | undefined,
       assignedToId: data.assignedToId
         ? new Types.ObjectId(data.assignedToId)
-        : undefined
+        : undefined,
     };
 
     const updatedTask = await taskRepository.update(taskId, updateData);
@@ -101,15 +141,13 @@ export class TaskService {
 
     if (io) {
       io.to(task.creatorId.toString()).emit("taskUpdated", updatedTask);
-      if (newAssignee) {
-        io.to(newAssignee).emit("taskUpdated", updatedTask);
-      }
+      if (newAssignee) io.to(newAssignee).emit("taskUpdated", updatedTask);
 
       if (newAssignee && newAssignee !== previousAssignee) {
         const notification = await Notification.create({
           userId: newAssignee,
           taskId: updatedTask._id,
-          message: `You were assigned a task: ${updatedTask.title}`
+          message: `You were assigned a task: ${updatedTask.title}`,
         });
 
         io.to(newAssignee).emit("notification", notification);
@@ -119,24 +157,32 @@ export class TaskService {
     return updatedTask;
   }
 
+  /**
+   * Deletes a task by ID.
+   *
+   * Only the creator can delete a task.
+   * Optionally emits socket events and notifies the assignee.
+   *
+   * @param taskId - Task ID
+   * @param userId - User performing the deletion
+   * @param io - Optional Socket.IO instance for real-time events
+   * @returns The deleted task document
+   * @throws HttpError 403 if user is not the creator
+   * @throws HttpError 404 if task is not found
+   * @throws HttpError 500 if deletion fails
+   */
   async deleteTask(
     taskId: string,
     userId: string,
     io?: any
   ): Promise<ITask> {
     const task = await taskRepository.findById(taskId);
-    if (!task) {
-      throw new HttpError(404, "Task not found");
-    }
-
-    if (task.creatorId.toString() !== userId) {
+    if (!task) throw new HttpError(404, "Task not found");
+    if (task.creatorId.toString() !== userId)
       throw new HttpError(403, "Only the creator can delete this task");
-    }
 
     const deletedTask = await taskRepository.delete(taskId);
-    if (!deletedTask) {
-      throw new HttpError(500, "Failed to delete task");
-    }
+    if (!deletedTask) throw new HttpError(500, "Failed to delete task");
 
     if (io) {
       io.to(task.creatorId.toString()).emit("taskDeleted", deletedTask);
@@ -145,7 +191,7 @@ export class TaskService {
       const notification = await Notification.create({
         userId: task.assignedToId,
         taskId: task._id,
-        message: `Task deleted: ${task.title}`
+        message: `Task deleted: ${task.title}`,
       });
 
       io.to(task.assignedToId.toString()).emit("notification", notification);
@@ -154,6 +200,12 @@ export class TaskService {
     return deletedTask;
   }
 
+  /**
+   * Retrieves all tasks and overdue tasks for a user.
+   *
+   * @param userId - User ID
+   * @returns Object containing `tasks` and `overdueTasks` arrays
+   */
   async getTasksForUser(userId: string) {
     const tasks = await taskRepository.findByUser(userId);
     const overdueTasks = await taskRepository.findOverdue(userId);
@@ -161,4 +213,7 @@ export class TaskService {
   }
 }
 
+/**
+ * Singleton instance of TaskService for use in controllers.
+ */
 export const taskService = new TaskService();
