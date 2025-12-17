@@ -28,7 +28,7 @@ This repository contains the backend services for the Collaborative Task Manager
 ### Clone the repository
 
 ```bash
-
+https://github.com/Aman235-code/task-manager.git
 ```
 
 ### Installation
@@ -50,7 +50,7 @@ yarn install
 ```bash
 PORT=4000
 NODE_ENV=development
-MONGO_URI=mongodb://127.0.0.1:27017/task_manager
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/task_manager
 JWT_SECRET=your_jwt_secret
 JWT_EXPIRES_IN=7d
 FRONTEND_URL=http://localhost:5173
@@ -344,18 +344,53 @@ Output:-
 ### Folder Structure
 
 ```bash
-backend/
-├─ src/
-│  ├─ controllers/
-│  ├─ services/
-│  ├─ repositories/
-│  ├─ models/
-│  ├─ middlewares/
-│  ├─ dtos/
-│  └─ index.ts
-├─ tests/
-└─ package.json
-
+└── 📁backend
+    └── 📁src
+        └── 📁config
+            ├── db.ts
+            ├── env.ts
+        └── 📁middlewares
+            ├── auth.middleware.ts
+        └── 📁modules
+            └── 📁auth
+                ├── auth.controller.ts
+                ├── auth.dto.ts
+                ├── auth.routes.ts
+                ├── auth.service.ts
+            └── 📁notifications
+                ├── notification.controller.ts
+                ├── notification.model.ts
+                ├── notification.routes.ts
+            └── 📁tasks
+                ├── task.controller.ts
+                ├── task.dto.ts
+                ├── task.model.ts
+                ├── task.repository.ts
+                ├── task.routes.ts
+                ├── task.service.ts
+            └── 📁users
+                ├── user.controller.ts
+                ├── user.model.ts
+                ├── user.routes.ts
+                ├── user.service.ts
+        └── 📁tests
+            ├── auth.service.test.ts
+            ├── task.service.test.ts
+        └── 📁types
+            ├── express.d.ts
+            ├── index.d.ts
+        └── 📁utils
+            ├── httpError.ts
+            ├── jwt.ts
+        ├── app.ts
+        ├── server.ts
+        ├── socket.ts
+    ├── .env
+    ├── .gitignore
+    ├── jest.config.js
+    ├── package-lock.json
+    ├── package.json
+    └── tsconfig.json
 ```
 
 ## Key Decisions
@@ -480,7 +515,7 @@ This repository contains the frontend application for the **Collaborative Task M
 ### Clone the repository
 
 ```bash
-
+https://github.com/Aman235-code/task-manager.git
 ```
 
 ### Installation
@@ -517,18 +552,55 @@ yarn dev
 ## Project Structure
 
 ```bash
-frontend/
-├─ src/
-│  ├─ api/             # Axios/React Query setup
-│  ├─ components/      # Reusable UI components (TaskCard, Modal, etc.)
-│  ├─ context/         # AuthContext, NotificationContext
-│  ├─ hooks/           # Custom hooks (useTasks, useAuth)
-│  ├─ pages/           # Page components (Dashboard, Profile, Login, Register)
-│  ├─ utils/           # Utility functions (date formatting, validation)
-│  └─ App.tsx          # App entry point
-├─ public/
-├─ index.html
-└─ package.json
+└── 📁task-manager-frontend
+    └── 📁public
+        ├── vite.svg
+    └── 📁src
+        └── 📁api
+            ├── axios.ts
+            ├── reactQuery.ts
+            ├── socket.ts
+        └── 📁assets
+            ├── react.svg
+        └── 📁components
+            ├── ConfirmDeleteModal.tsx
+            ├── CreateTaskModal.tsx
+            ├── DesktopAuth.tsx
+            ├── DesktopLinks.tsx
+            ├── MobileMenu.tsx
+            ├── Navbar.tsx
+            ├── NotificationsDropdown.tsx
+            ├── Profile.tsx
+            ├── ProtectedRoute.tsx
+            ├── TaskCard.tsx
+            ├── TaskForm.tsx
+        └── 📁context
+            ├── AuthContext.tsx
+            ├── NotificationContext.tsx
+        └── 📁hooks
+            ├── useAuth.ts
+            ├── useTasks.ts
+        └── 📁pages
+            ├── Dashboard.tsx
+            ├── Filters.tsx
+            ├── Header.tsx
+            ├── Login.tsx
+            ├── Register.tsx
+            ├── SummaryCards.tsx
+            ├── TaskGrid.tsx
+        ├── App.tsx
+        ├── index.css
+        ├── main.tsx
+    ├── .env
+    ├── .gitignore
+    ├── eslint.config.js
+    ├── index.html
+    ├── package-lock.json
+    ├── package.json
+    ├── tsconfig.app.json
+    ├── tsconfig.json
+    ├── tsconfig.node.json
+    └── vite.config.ts
 ```
 
 ## Socket.io Integration
