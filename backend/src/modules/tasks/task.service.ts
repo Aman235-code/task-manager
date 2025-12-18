@@ -56,8 +56,18 @@ export class TaskService {
     const task = await taskRepository.create(taskData);
 
     if (io) {
-      io.to(userId).emit("taskCreated", task);
-      io.to(data.assignedToId).emit("taskCreated", task);
+      const creatorRoom = userId;
+      const assigneeRoom = data.assignedToId;
+
+      console.log("📤 Emitting taskCreated");
+      console.log("   taskId:", task._id.toString());
+      console.log("   creatorRoom:", creatorRoom);
+      console.log("   assigneeRoom:", assigneeRoom);
+
+      io.to(creatorRoom).emit("taskCreated", task);
+      if (assigneeRoom !== creatorRoom) {
+        io.to(assigneeRoom).emit("taskCreated", task);
+      }
 
       const notification = await Notification.create({
         userId: data.assignedToId,
@@ -65,7 +75,11 @@ export class TaskService {
         message: `You were assigned a new task: ${task.title}`,
       });
 
-      io.to(data.assignedToId).emit("notification", notification);
+      console.log("📤 Emitting notification");
+      console.log("   to:", assigneeRoom);
+      console.log("   notificationId:", notification._id.toString());
+
+      io.to(assigneeRoom).emit("notification", notification);
     }
 
     return task;
@@ -140,17 +154,30 @@ export class TaskService {
     const newAssignee = updatedTask.assignedToId?.toString();
 
     if (io) {
-      io.to(task.creatorId.toString()).emit("taskUpdated", updatedTask);
-      if (newAssignee) io.to(newAssignee).emit("taskUpdated", updatedTask);
+      const creatorRoom = task.creatorId.toString();
+      const assigneeRoom = newAssignee;
 
-      if (newAssignee && newAssignee !== previousAssignee) {
+      console.log("📤 Emitting taskUpdated");
+      console.log("   taskId:", updatedTask._id.toString());
+      console.log("   creatorRoom:", creatorRoom);
+      console.log("   assigneeRoom:", assigneeRoom);
+
+      io.to(creatorRoom).emit("taskUpdated", updatedTask);
+      if (assigneeRoom && assigneeRoom !== creatorRoom) {
+        io.to(assigneeRoom).emit("taskUpdated", updatedTask);
+      }
+
+      if (assigneeRoom && assigneeRoom !== previousAssignee) {
         const notification = await Notification.create({
-          userId: newAssignee,
+          userId: assigneeRoom,
           taskId: updatedTask._id,
           message: `You were assigned a task: ${updatedTask.title}`,
         });
 
-        io.to(newAssignee).emit("notification", notification);
+        console.log("📤 Emitting reassignment notification");
+        console.log("   to:", assigneeRoom);
+
+        io.to(assigneeRoom).emit("notification", notification);
       }
     }
 
@@ -171,11 +198,7 @@ export class TaskService {
    * @throws HttpError 404 if task is not found
    * @throws HttpError 500 if deletion fails
    */
-  async deleteTask(
-    taskId: string,
-    userId: string,
-    io?: any
-  ): Promise<ITask> {
+  async deleteTask(taskId: string, userId: string, io?: any): Promise<ITask> {
     const task = await taskRepository.findById(taskId);
     if (!task) throw new HttpError(404, "Task not found");
     if (task.creatorId.toString() !== userId)
@@ -185,8 +208,18 @@ export class TaskService {
     if (!deletedTask) throw new HttpError(500, "Failed to delete task");
 
     if (io) {
-      io.to(task.creatorId.toString()).emit("taskDeleted", deletedTask);
-      io.to(task.assignedToId.toString()).emit("taskDeleted", deletedTask);
+      const creatorRoom = task.creatorId.toString();
+      const assigneeRoom = task.assignedToId.toString();
+
+      console.log("📤 Emitting taskDeleted");
+      console.log("   taskId:", deletedTask._id.toString());
+      console.log("   creatorRoom:", creatorRoom);
+      console.log("   assigneeRoom:", assigneeRoom);
+
+      io.to(creatorRoom).emit("taskDeleted", deletedTask);
+      if (assigneeRoom !== creatorRoom) {
+        io.to(assigneeRoom).emit("taskDeleted", deletedTask);
+      }
 
       const notification = await Notification.create({
         userId: task.assignedToId,
@@ -194,7 +227,10 @@ export class TaskService {
         message: `Task deleted: ${task.title}`,
       });
 
-      io.to(task.assignedToId.toString()).emit("notification", notification);
+      console.log("📤 Emitting delete notification");
+      console.log("   to:", assigneeRoom);
+
+      io.to(assigneeRoom).emit("notification", notification);
     }
 
     return deletedTask;

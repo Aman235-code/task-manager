@@ -3,6 +3,7 @@ import type { Task } from "../hooks/useTasks";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import type { AuthUser } from "../context/AuthContext";
+import { api } from "../api/axios";
 
 export default function TaskCard({
   task,
@@ -27,25 +28,12 @@ export default function TaskCard({
     const fetchUsers = async () => {
       try {
         const [creatorRes, assigneeRes] = await Promise.all([
-          fetch(`http://localhost:4000/api/v1/users/${task.creatorId}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }),
-          fetch(`http://localhost:4000/api/v1/users/${task.assignedToId}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          }),
+          api.get(`/api/v1/users/${task.creatorId}`),
+          api.get(`/api/v1/users/${task.assignedToId}`),
         ]);
 
-        if (!creatorRes.ok || !assigneeRes.ok)
-          throw new Error("Failed to fetch users");
-
-        const creatorData = await creatorRes.json();
-        const assigneeData = await assigneeRes.json();
-        setCreator(creatorData.user);
-        setAssignee(assigneeData.user);
+        setCreator(creatorRes.data.user);
+        setAssignee(assigneeRes.data.user);
       } catch (err) {
         console.error("User fetch failed", err);
       }

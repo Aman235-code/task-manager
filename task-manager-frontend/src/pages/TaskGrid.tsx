@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import TaskCard from "../components/TaskCard";
 
 const TaskGrid = ({ tasks, onEdit, onDelete }: any) => (

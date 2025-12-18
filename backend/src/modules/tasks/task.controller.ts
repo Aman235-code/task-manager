@@ -44,10 +44,13 @@ function handleError(res: Response, err: unknown) {
  */
 export async function createTask(req: Request, res: Response) {
   try {
+    console.log("➡️ POST /tasks");
+    console.log("   user:", req.user!.id);
     const data = CreateTaskDto.parse(req.body);
     const io = req.app.get("io");
 
     const task = await taskService.createTask(req.user!.id, data, io);
+    console.log("✅ Task created:", task._id.toString());
     res.status(201).json(task);
   } catch (err) {
     handleError(res, err);

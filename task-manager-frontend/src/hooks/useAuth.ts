@@ -4,7 +4,7 @@ import { useState } from "react";
  * Represents the authenticated user
  */
 export type AuthUser = {
-  _id: string;
+  id: string;
   name: string;
   email?: string;
 };

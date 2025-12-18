@@ -41,7 +41,7 @@ export default function ConfirmDeleteModal({
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60 transition"
+            className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-rose-500 to-red-600 px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60 transition"
           >
             <Trash2 size={14} />
             Delete

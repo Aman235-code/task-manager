@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Filter, Flag, ArrowUpDown } from "lucide-react";
 
 const Filters = ({

@@ -13,7 +13,7 @@ import { useQueryClient } from "react-query";
  * Represents the authenticated user
  */
 export type AuthUser = {
-  _id: string;
+  id: string;
   name: string;
   email?: string;
 };

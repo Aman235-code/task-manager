@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UserCheck, ClipboardList, AlertTriangle } from "lucide-react";
 
 const SummaryCard = ({

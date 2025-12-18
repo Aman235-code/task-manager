@@ -10,7 +10,8 @@ import {
 } from "react";
 import { api } from "../api/axios";
 import { useAuth } from "./AuthContext";
-import { io, Socket } from "socket.io-client";
+import { socket, initializeSocket, disconnectSocket } from "../api/socket";
+import type { Socket } from "socket.io-client";
 import toast from "react-hot-toast";
 
 /**
@@ -66,48 +67,50 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 
 /**
  * Provider component for notifications
- * 
+ *
  * @param {object} props
  * @param {ReactNode} props.children - Components that will have access to notifications
  */
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [socket, setSocket] = useState<Socket | undefined>(undefined);
 
   /**
    * Initialize socket connection when user logs in
    */
   useEffect(() => {
-    if (!user?._id) return;
+    if (!user?.id) {
+      disconnectSocket();
+      return;
+    }
 
-    const socketClient = io("http://localhost:4000", {
-      auth: { userId: user._id },
-    });
+    initializeSocket(user.id);
 
-    socketClient.on("connect", () => console.log("Socket connected"));
-    socketClient.on("disconnect", () => console.log("Socket disconnected"));
+    socket.on("connect", () => console.log("Socket connected"));
+    socket.on("disconnect", () => console.log("Socket disconnected"));
 
-    socketClient.on("notification", (notif: Notification) => {
+    socket.on("notification", (notif: Notification) => {
       setNotifications((prev) => [notif, ...prev]);
+      toast(notif.message, { icon: "🔔" });
     });
-
-    setSocket(socketClient);
 
     return () => {
-      socketClient.disconnect();
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("notification");
     };
-  }, [user?._id]);
+  }, [user?.id]);
 
   /**
    * Fetch existing notifications from backend on user login
    */
   useEffect(() => {
-    if (!user?._id) return;
+    if (!user?.id) return;
 
     const fetchNotifications = async () => {
       try {
         const { data } = await api.get("/api/v1/notifications");
+       
         setNotifications(data);
       } catch (err) {
         console.error("Failed to fetch notifications:", err);
@@ -115,7 +118,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     };
 
     fetchNotifications();
-  }, [user?._id]);
+  }, [user?.id]);
 
   /** Add a notification locally */
   const addNotification = (notif: Notification) => {

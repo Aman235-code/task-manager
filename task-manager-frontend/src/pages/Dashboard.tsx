@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useState, useEffect, useMemo, useRef, type SetStateAction } from "react";
+import { useState, useEffect, useMemo, type SetStateAction } from "react";
 import {
   useTasks,
   useCreateTask,
@@ -40,48 +40,54 @@ const Dashboard = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
-  const initializedRef = useRef(false);
-
   /**
-   * Initialize real-time tasks once tasks are loaded.
+   * Initialize and sync real-time tasks when query data changes.
    */
   useEffect(() => {
-    if (!initializedRef.current && tasks.length > 0) {
+    if (realtimeTasks.length === 0 && tasks.length > 0) {
       setRealtimeTasks(tasks);
-      initializedRef.current = true;
     }
-  }, [tasks]);
+  }, [tasks, realtimeTasks.length]);
 
   /**
    * Subscribe to task events from socket for real-time updates.
    */
   useEffect(() => {
-    socket.on("taskCreated", (task: Task) =>
-      setRealtimeTasks((prev) => [...prev, task])
-    );
-    socket.on("taskUpdated", (task: Task) =>
+    const handleTaskCreated = (task: Task) => {
+      setRealtimeTasks((prev) => {
+        if (prev.find((t) => t._id === task._id)) return prev;
+        return [...prev, task];
+      });
+    };
+
+    const handleTaskUpdated = (task: Task) => {
       setRealtimeTasks((prev) =>
         prev.map((t) => (t._id === task._id ? task : t))
-      )
-    );
-    socket.on("taskDeleted", (id: string) =>
-      setRealtimeTasks((prev) => prev.filter((t) => t._id !== id))
-    );
+      );
+    };
+
+    const handleTaskDeleted = (task: Task) => {
+      setRealtimeTasks((prev) => prev.filter((t) => t._id !== task._id));
+    };
+
+    socket.on("taskCreated", handleTaskCreated);
+    socket.on("taskUpdated", handleTaskUpdated);
+    socket.on("taskDeleted", handleTaskDeleted);
 
     return () => {
-      socket.off("taskCreated");
-      socket.off("taskUpdated");
-      socket.off("taskDeleted");
+      socket.off("taskCreated", handleTaskCreated);
+      socket.off("taskUpdated", handleTaskUpdated);
+      socket.off("taskDeleted", handleTaskDeleted);
     };
-  }, []);
+  }, [realtimeTasks]);
 
   // Derived task views
   const assignedToMe = useMemo(
-    () => realtimeTasks.filter((t) => t.assignedToId === user?._id),
+    () => realtimeTasks.filter((t) => t.assignedToId === user?.id),
     [realtimeTasks, user]
   );
   const createdByMe = useMemo(
-    () => realtimeTasks.filter((t) => t.creatorId === user?._id),
+    () => realtimeTasks.filter((t) => t.creatorId === user?.id),
     [realtimeTasks, user]
   );
   const overdueTasks = useMemo(() => {
@@ -155,12 +161,7 @@ const Dashboard = () => {
             updateTaskMutation.mutate(
               { id: editingTask._id, task },
               {
-                onSuccess: (updatedTask) => {
-                  setRealtimeTasks((prev) =>
-                    prev.map((t) =>
-                      t._id === editingTask._id ? updatedTask.data : t
-                    )
-                  );
+                onSuccess: () => {
                   toast.success("Task updated successfully");
                   setEditingTask(null);
                   setOpenCreate(false);
@@ -174,9 +175,8 @@ const Dashboard = () => {
             );
           } else {
             createTaskMutation.mutate(task, {
-              onSuccess: (newTask) => {
+              onSuccess: () => {
                 toast.success("Task created successfully");
-                setRealtimeTasks((prev) => [...prev, newTask.data]);
                 setOpenCreate(false);
               },
               onError: (error: any) => {
@@ -203,9 +203,6 @@ const Dashboard = () => {
 
           deleteTaskMutation.mutate(taskToDelete._id, {
             onSuccess: () => {
-              setRealtimeTasks((prev) =>
-                prev.filter((t) => t._id !== taskToDelete._id)
-              );
               toast.success("Task deleted successfully");
               setTaskToDelete(null);
             },

@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { FiHome, FiUser, FiBell, FiLogOut } from "react-icons/fi";
-import NotificationsDropdown from "./NotificationsDropdown";
+import { Home, User, Bell, LogOut } from "lucide-react";
 import { useNotifications } from "../context/NotificationContext";
+import NotificationsDropdown from "./NotificationsDropdown";
 
 const MobileMenu = ({ user, logout }: any) => {
   const [notifOpen, setNotifOpen] = useState(false);
@@ -15,11 +16,11 @@ const MobileMenu = ({ user, logout }: any) => {
       {user && (
         <>
           <NavLink to="/" className="px-3 py-2 text-white/80">
-            <FiHome /> Dashboard
+            <Home /> Dashboard
           </NavLink>
 
           <NavLink to="/profile" className="px-3 py-2 text-white/80">
-            <FiUser /> Profile
+            <User /> Profile
           </NavLink>
 
           <button
@@ -28,7 +29,7 @@ const MobileMenu = ({ user, logout }: any) => {
           >
             {/* Bell wrapper */}
             <span className="relative inline-flex">
-              <FiBell size={18} />
+              <Bell size={18} />
 
               {unreadCount > 0 && (
                 <span
@@ -63,7 +64,7 @@ const MobileMenu = ({ user, logout }: any) => {
             onClick={logout}
             className="mt-2 flex items-center gap-2 bg-white text-indigo-600 px-4 py-2 rounded-md"
           >
-            <FiLogOut /> Logout
+            <LogOut /> Logout
           </button>
         </>
       )}

@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { X, Calendar, Flag, User, CheckCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { api } from "../api/axios";
+
 /**
  * Modal component for creating or editing a task.
  * Fetches users for assignment, handles form validation, and submits task data.
@@ -81,13 +84,7 @@ export default function CreateTaskModal({
     const fetchUsers = async () => {
       try {
         setLoadingUsers(true);
-        const res = await fetch("http://localhost:4000/api/v1/users/all", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        });
-        if (!res.ok) throw new Error("Unauthorized");
-        const data = await res.json();
+        const { data } = await api.get("/api/v1/users/all");
         setUsers(data.users);
       } catch (err) {
         console.error("Failed to fetch users", err);
@@ -327,7 +324,7 @@ export default function CreateTaskModal({
           {/* Submit */}
           <button
             onClick={handleSubmit}
-            className="mt-2 w-full rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 py-2.5 text-sm font-semibold text-white shadow hover:opacity-90 transition"
+            className="mt-2 w-full rounded-xl bg-linear-to-r from-indigo-500 to-violet-500 py-2.5 text-sm font-semibold text-white shadow hover:opacity-90 transition"
           >
             {isEdit ? "Update Task" : "Create Task"}
           </button>

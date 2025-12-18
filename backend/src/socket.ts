@@ -1,3 +1,4 @@
+import { Server as HttpServer } from "http";
 import { Server } from "socket.io";
 
 /**
@@ -13,7 +14,7 @@ import { Server } from "socket.io";
  * @param server - The HTTP or HTTPS server instance used by Express
  * @returns The initialized Socket.IO server instance
  */
-export function setupSocket(server) {
+export function setupSocket(server: HttpServer) {
   /**
    * Socket.IO server instance with CORS enabled
    * to support authenticated cross-origin requests.
@@ -35,6 +36,10 @@ export function setupSocket(server) {
      */
     const userId = socket.handshake.auth.userId;
 
+    console.log("🟢 Socket connected");
+    console.log("   socket.id:", socket.id);
+    console.log("   userId:", userId);
+
     /**
      * If a valid userId is present, associate this socket
      * with a room named after the userId.
@@ -44,9 +49,10 @@ export function setupSocket(server) {
      * - task updated
      * - notifications
      */
+
     if (userId) {
       socket.join(userId);
-      console.log("User connected:", userId);
+      console.log(`   joined room: ${userId}`);
     }
 
     /**
@@ -54,7 +60,9 @@ export function setupSocket(server) {
      * network loss, or explicit socket termination.
      */
     socket.on("disconnect", () => {
-      console.log("User disconnected:", userId);
+      console.log("🔴 Socket disconnected");
+      console.log("   socket.id:", socket.id);
+      console.log("   userId:", userId);
     });
   });
 

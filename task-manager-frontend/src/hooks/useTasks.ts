@@ -24,12 +24,12 @@ export const useTasks = () => {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ["tasks", user?._id],
+    queryKey: ["tasks", user?.id],
     queryFn: async () => {
       const { data } = await api.get("/api/v1/tasks");
       return data.tasks;
     },
-    enabled: !!user?._id, // only fetch if user is logged in
+    enabled: !!user?.id, // only fetch if user is logged in
   });
 };
 
@@ -41,19 +41,16 @@ export const useCreateTask = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  return useMutation(
-    (task: Partial<Task>) => api.post("/api/v1/tasks", task),
-    {
-      onSuccess: () => {
-        if (!user?._id) return;
+  return useMutation((task: Partial<Task>) => api.post("/api/v1/tasks", task), {
+    onSuccess: () => {
+      if (!user?.id) return;
 
-        // Invalidate task queries to refresh the list
-        queryClient.invalidateQueries({
-          queryKey: ["tasks", user._id],
-        });
-      },
-    }
-  );
+      // Invalidate task queries to refresh the list
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", user.id],
+      });
+    },
+  });
 };
 
 /**
@@ -69,11 +66,11 @@ export const useUpdateTask = () => {
       api.put(`/api/v1/tasks/${id}`, task),
     {
       onSuccess: () => {
-        if (!user?._id) return;
+        if (!user?.id) return;
 
         // Refresh tasks after update
         queryClient.invalidateQueries({
-          queryKey: ["tasks", user._id],
+          queryKey: ["tasks", user.id],
         });
       },
     }
@@ -88,17 +85,14 @@ export const useDeleteTask = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  return useMutation(
-    (id: string) => api.delete(`/api/v1/tasks/${id}`),
-    {
-      onSuccess: () => {
-        if (!user?._id) return;
+  return useMutation((id: string) => api.delete(`/api/v1/tasks/${id}`), {
+    onSuccess: () => {
+      if (!user?.id) return;
 
-        // Refresh tasks after deletion
-        queryClient.invalidateQueries({
-          queryKey: ["tasks", user._id],
-        });
-      },
-    }
-  );
+      // Refresh tasks after deletion
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", user.id],
+      });
+    },
+  });
 };
