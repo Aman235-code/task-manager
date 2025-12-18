@@ -46,6 +46,7 @@ export default function TaskCard({
     targetUser: UserType | null,
     currentUser: AuthUser | null
   ) => {
+    console.warn(targetUser, currentUser);
     if (!targetUser) return "Loading...";
     if (targetUser._id === currentUser?.id) return "Me";
     return targetUser.name;
@@ -142,7 +143,7 @@ const Badge = ({ text, danger }: { text: string; danger?: boolean }) => {
   if (danger) {
     return (
       <span
-        className={`${base} bg-gradient-to-r from-red-500 to-rose-500 text-white`}
+        className={`${base} bg-linear-to-r from-red-500 to-rose-500 text-white`}
       >
         {text}
       </span>

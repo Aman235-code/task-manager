@@ -4,6 +4,16 @@ This repository contains the backend services for the Collaborative Task Manager
 
 ---
 
+## Deployed URL:
+https://task-manager-gamma-wheat.vercel.app/
+
+## Check out my tech Blog
+https://my-blog-blond-ten.vercel.app/
+
+## Check out My Documentation and Boilerplate Code
+https://boilerplate-app-beta.vercel.app/
+https://aman-code-docs.vercel.app/
+
 ## Table of Contents
 
 - [Setup Instructions](#setup-instructions)
@@ -539,6 +549,7 @@ VITE_API_BASE=http://localhost:4000
 ```
 
 ## Running Locally
+
 ### Start the development server
 
 ```bash
