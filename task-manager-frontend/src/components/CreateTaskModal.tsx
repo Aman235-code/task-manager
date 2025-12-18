@@ -309,7 +309,7 @@ export default function CreateTaskModal({
                 {users.map((u) => (
                   <option key={u._id} value={u._id}>
                     {form.assignedToId === u._id ? "✓ " : ""}
-                    {u.name} {u._id === user?._id ? "(You)" : ""}
+                    {u.name} {u._id === user?.id ? "(You)" : ""}
                   </option>
                 ))}
               </select>

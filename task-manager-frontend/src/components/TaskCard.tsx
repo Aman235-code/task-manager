@@ -47,7 +47,7 @@ export default function TaskCard({
     currentUser: AuthUser | null
   ) => {
     if (!targetUser) return "Loading...";
-    if (targetUser._id === currentUser?._id) return "Me";
+    if (targetUser._id === currentUser?.id) return "Me";
     return targetUser.name;
   };
 
